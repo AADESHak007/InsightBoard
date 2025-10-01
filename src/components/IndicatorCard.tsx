@@ -43,20 +43,20 @@ export default function IndicatorCard({ indicator }: IndicatorCardProps) {
   return (
     <div className="bg-[#111827] border border-[#1f2937] rounded-lg p-5 hover:border-cyan-500/50 transition-all duration-200">
       {/* Header */}
-      <div className="flex items-start justify-between mb-2">
-        <div>
-          <h3 className="text-lg font-semibold text-white">{indicator.title}</h3>
+      <div className="flex items-start justify-between mb-2 gap-2">
+        <div className="flex-1 min-w-0">
+          <h3 className="text-lg font-semibold text-white break-words leading-tight">{indicator.title}</h3>
           <span className="inline-block mt-1 px-2 py-0.5 bg-cyan-500/20 text-cyan-400 text-xs rounded">
             {indicator.category}
           </span>
         </div>
-        <button className="text-gray-400 hover:text-white">
+        <button className="text-gray-400 hover:text-white flex-shrink-0">
           <EllipsisVerticalIcon className="w-5 h-5" />
         </button>
       </div>
 
       {/* Description */}
-      <p className="text-sm text-gray-400 mb-3 mt-2">{indicator.description}</p>
+      <p className="text-sm text-gray-400 mb-3 mt-2 break-words leading-relaxed">{indicator.description}</p>
 
       {/* Explanation and Direction */}
       {(indicator.explanation || indicator.higherIsBetter !== undefined) && (
@@ -98,14 +98,14 @@ export default function IndicatorCard({ indicator }: IndicatorCardProps) {
 
       {/* Value */}
       <div className="mb-4">
-        <div className="flex items-baseline gap-2 mb-3 flex-wrap">
+        <div className="flex items-baseline gap-2 mb-3 flex-wrap min-h-0">
           <span 
-            className="text-3xl font-bold break-words" 
+            className="text-3xl font-bold break-all leading-tight" 
             style={{ color: indicator.color || '#06b6d4' }}
           >
             {(indicator.value ?? 0).toLocaleString()}
           </span>
-          <span className="text-lg text-gray-400 break-words">{indicator.unit}</span>
+          <span className="text-lg text-gray-400 break-words leading-tight">{indicator.unit}</span>
         </div>
 
         {/* Progress Bar */}
@@ -121,8 +121,8 @@ export default function IndicatorCard({ indicator }: IndicatorCardProps) {
               />
             </div>
             <div className="flex justify-between text-xs text-gray-400 flex-wrap gap-1">
-              <span className="break-words">Target: {indicator.targetCondition} {indicator.target.toLocaleString()} {indicator.unit}</span>
-              <span className="whitespace-nowrap">
+              <span className="break-words min-w-0 flex-1">Target: {indicator.targetCondition} {indicator.target.toLocaleString()} {indicator.unit}</span>
+              <span className="whitespace-nowrap flex-shrink-0">
             {getActualPercentage() > 0 && getActualPercentage() < 1 ? '<1%' : `${Math.round(getActualPercentage())}%`}
           </span>
             </div>
@@ -131,9 +131,9 @@ export default function IndicatorCard({ indicator }: IndicatorCardProps) {
       </div>
 
       {/* Footer */}
-      <div className="flex items-center justify-between text-xs text-gray-500 pt-3 border-t border-[#1f2937]">
-        <span>Last update: {indicator.lastUpdate}</span>
-        <span>{indicator.source}</span>
+      <div className="flex items-center justify-between text-xs text-gray-500 pt-3 border-t border-[#1f2937] gap-2">
+        <span className="break-words min-w-0 flex-1">Last update: {indicator.lastUpdate}</span>
+        <span className="whitespace-nowrap flex-shrink-0">{indicator.source}</span>
       </div>
     </div>
   );
