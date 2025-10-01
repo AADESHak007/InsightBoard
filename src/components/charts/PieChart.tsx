@@ -1,5 +1,7 @@
 'use client';
 
+import { useState, useRef } from 'react';
+
 interface PieChartProps {
   data: Array<{
     label: string;
@@ -8,20 +10,27 @@ interface PieChartProps {
   }>;
   title?: string;
   size?: number;
+  dataAlert?: string;
 }
 
-const COLORS = [
-  '#06b6d4', // cyan
+const DISTINCTIVE_COLORS = [
   '#3b82f6', // blue
-  '#8b5cf6', // purple
-  '#ec4899', // pink
-  '#f59e0b', // orange
-  '#10b981', // green
+  '#10b981', // emerald
+  '#f59e0b', // amber
   '#ef4444', // red
+  '#8b5cf6', // violet
+  '#06b6d4', // cyan
+  '#84cc16', // lime
+  '#f97316', // orange
+  '#ec4899', // pink
   '#14b8a6', // teal
 ];
 
-export default function PieChart({ data, title, size = 400 }: PieChartProps) {
+export default function PieChart({ data, title, size = 450, dataAlert }: PieChartProps) {
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
+  const chartRef = useRef<HTMLDivElement>(null);
+  
   const centerX = size / 2;
   const centerY = size / 2;
   const radius = Math.min(size, size) * 0.35;
@@ -65,7 +74,7 @@ export default function PieChart({ data, title, size = 400 }: PieChartProps) {
 
     return {
       path,
-      color: COLORS[index % COLORS.length],
+      color: DISTINCTIVE_COLORS[index % DISTINCTIVE_COLORS.length],
       percentage,
       label: item.label,
       value: item.value,
@@ -76,22 +85,77 @@ export default function PieChart({ data, title, size = 400 }: PieChartProps) {
   });
 
   return (
-    <div className="w-full">
+    <div className="w-full relative" ref={chartRef}>
       {title && <h3 className="text-xl font-semibold text-white mb-4">{title}</h3>}
+      
+      {/* Data Alert */}
+      {dataAlert && (
+        <div className="mb-4 p-3 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
+          <div className="flex items-center gap-2 text-yellow-400">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+            <span className="text-sm font-medium">{dataAlert}</span>
+          </div>
+        </div>
+      )}
+      
       <div className="flex flex-col lg:flex-row items-center justify-center gap-8">
         {/* Pie Chart */}
         <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="flex-shrink-0">
           {slices.map((slice, index) => (
             <g key={index} className="group cursor-pointer">
+              {/* Gradient definitions */}
+              <defs>
+                <linearGradient id={`pieGradient-${index}`} x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor={slice.color} stopOpacity="0.9" />
+                  <stop offset="100%" stopColor={slice.color} stopOpacity="0.7" />
+                </linearGradient>
+              </defs>
               {/* Slice */}
               <path
                 d={slice.path}
-                fill={slice.color}
+                fill={`url(#pieGradient-${index})`}
                 stroke="#0a0e1a"
                 strokeWidth="2"
-                opacity="0.85"
+                opacity={hoveredIndex === index ? "1" : "0.85"}
                 className="transition-all duration-300 hover:opacity-100 hover:scale-105"
                 style={{ transformOrigin: `${centerX}px ${centerY}px` }}
+                onMouseMove={(e) => {
+                  if (!chartRef.current) return;
+                  
+                  setHoveredIndex(index);
+                  const chartRect = chartRef.current.getBoundingClientRect();
+                  const tooltipWidth = 180;
+                  const tooltipHeight = 80;
+                  const offset = 12;
+
+                  let tooltipX = e.clientX - chartRect.left + offset;
+                  let tooltipY = e.clientY - chartRect.top + offset;
+
+                  // Check if tooltip would overflow right edge
+                  if (tooltipX + tooltipWidth > chartRect.width) {
+                    tooltipX = e.clientX - chartRect.left - tooltipWidth - offset;
+                  }
+
+                  // Check if tooltip would overflow bottom edge
+                  if (tooltipY + tooltipHeight > chartRect.height) {
+                    tooltipY = e.clientY - chartRect.top - tooltipHeight - offset;
+                  }
+
+                  // Ensure tooltip doesn't go off left edge
+                  if (tooltipX < 0) {
+                    tooltipX = offset;
+                  }
+
+                  // Ensure tooltip doesn't go off top edge
+                  if (tooltipY < 0) {
+                    tooltipY = offset;
+                  }
+
+                  setTooltipPosition({ x: tooltipX, y: tooltipY });
+                }}
+                onMouseLeave={() => setHoveredIndex(null)}
               />
 
               {/* Percentage label on slice */}
@@ -150,7 +214,14 @@ export default function PieChart({ data, title, size = 400 }: PieChartProps) {
         {/* Legend */}
         <div className="flex flex-col gap-3">
           {slices.map((slice, index) => (
-            <div key={index} className="flex items-center gap-3 group cursor-pointer hover:bg-[#1a1f2e] p-2 rounded-lg transition-colors">
+            <div 
+              key={index} 
+              className={`flex items-center gap-3 group cursor-pointer hover:bg-[#1a1f2e] p-2 rounded-lg transition-colors ${
+                hoveredIndex === index ? 'bg-[#1a1f2e]' : ''
+              }`}
+              onMouseEnter={() => setHoveredIndex(index)}
+              onMouseLeave={() => setHoveredIndex(null)}
+            >
               <div
                 className="w-4 h-4 rounded flex-shrink-0"
                 style={{ backgroundColor: slice.color }}
@@ -165,6 +236,28 @@ export default function PieChart({ data, title, size = 400 }: PieChartProps) {
           ))}
         </div>
       </div>
+      
+      {/* Tooltip */}
+      {hoveredIndex !== null && (
+        <div
+          className="absolute z-50 bg-[#1f2937] border border-[#374151] rounded-lg p-3 shadow-lg pointer-events-none"
+          style={{
+            left: `${tooltipPosition.x}px`,
+            top: `${tooltipPosition.y}px`,
+            minWidth: "180px",
+          }}
+        >
+          <div className="text-white font-bold text-lg mb-2">
+            {slices[hoveredIndex].label}
+          </div>
+          <div className="text-white text-2xl font-bold mb-1">
+            {slices[hoveredIndex].value.toLocaleString()}
+          </div>
+          <div className="text-cyan-400 text-sm">
+            Value: {slices[hoveredIndex].percentage.toFixed(1)}%
+          </div>
+        </div>
+      )}
     </div>
   );
 }

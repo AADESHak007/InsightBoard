@@ -2,8 +2,6 @@
 
 import { Category } from '@/types/indicator';
 import { 
-  MagnifyingGlassIcon, 
-  PlusCircleIcon,
   FunnelIcon,
   HeartIcon,
   AcademicCapIcon,
@@ -18,7 +16,6 @@ import React from 'react';
 interface SidebarProps {
   selectedCategory: Category;
   onCategoryChange: (category: Category) => void;
-  onSearch: (query: string) => void;
 }
 
 const categories: { name: Category; icon: React.ComponentType<React.SVGProps<SVGSVGElement>> }[] = [
@@ -32,7 +29,7 @@ const categories: { name: Category; icon: React.ComponentType<React.SVGProps<SVG
   { name: 'Business', icon: BriefcaseIcon },
 ];
 
-export default function Sidebar({ selectedCategory, onCategoryChange, onSearch }: SidebarProps) {
+export default function Sidebar({ selectedCategory, onCategoryChange }: SidebarProps) {
   return (
     <div className="w-64 h-screen bg-[#0f1419] border-r border-[#1f2937] flex flex-col fixed left-0 top-0 overflow-hidden">
       {/* Logo/Title */}
@@ -48,26 +45,7 @@ export default function Sidebar({ selectedCategory, onCategoryChange, onSearch }
         </div>
       </div>
 
-      {/* Search */}
-      <div className="p-4">
-        <div className="relative">
-          <MagnifyingGlassIcon className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-          <input
-            type="text"
-            placeholder="Search indicators..."
-            className="w-full bg-[#1a1f2e] border border-[#2a3441] rounded-lg pl-9 pr-3 py-2 text-sm text-gray-300 placeholder-gray-500 focus:outline-none focus:border-cyan-500"
-            onChange={(e) => onSearch(e.target.value)}
-          />
-        </div>
-      </div>
 
-      {/* Add New Button */}
-      <div className="px-4 mb-4">
-        <button className="w-full bg-transparent border-2 border-cyan-500 text-cyan-400 rounded-lg py-2 flex items-center justify-center gap-2 hover:bg-cyan-500/10 transition-colors font-medium text-sm">
-          <PlusCircleIcon className="w-5 h-5" />
-          Add New Indicator
-        </button>
-      </div>
 
       {/* Categories */}
       <div className="flex-1 overflow-y-auto">

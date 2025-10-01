@@ -1,5 +1,7 @@
 'use client';
 
+import { useState, useRef } from 'react';
+
 interface GroupedBarChartProps {
   data: Array<{
     label: string;
@@ -14,17 +16,24 @@ interface GroupedBarChartProps {
   color2?: string;
   xAxisLabel?: string;
   yAxisLabel?: string;
+  dataAlert?: string;
 }
 
 export default function GroupedBarChart({ 
   data, 
   title, 
-  height = 400, 
+  height = 450, 
   color1 = '#3b82f6',
   color2 = '#ef4444',
   xAxisLabel = '',
-  yAxisLabel = 'Count'
+  yAxisLabel = 'Count',
+  dataAlert
 }: GroupedBarChartProps) {
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const [hoveredBar, setHoveredBar] = useState<'bar1' | 'bar2' | null>(null);
+  const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
+  const chartRef = useRef<HTMLDivElement>(null);
+  
   const maxValue = Math.max(
     ...data.flatMap(d => [d.value1, d.value2])
   );
@@ -39,7 +48,19 @@ export default function GroupedBarChart({
   const gap = groupWidth * 0.1;
 
   return (
-    <div className="w-full">
+    <div className="w-full relative" ref={chartRef}>
+      {/* Data Alert */}
+      {dataAlert && (
+        <div className="mb-4 p-3 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
+          <div className="flex items-center gap-2 text-yellow-400">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+            <span className="text-sm font-medium">{dataAlert}</span>
+          </div>
+        </div>
+      )}
+      
       <svg width="100%" height={height} viewBox={`0 0 ${width} ${height}`} className="overflow-visible">
         {/* Grid lines */}
         {[0, 25, 50, 75, 100].map((percent) => {
@@ -79,15 +100,67 @@ export default function GroupedBarChart({
 
           return (
             <g key={item.label}>
+              {/* Gradient definitions */}
+              <defs>
+                <linearGradient id={`groupedBar1Gradient-${index}`} x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stopColor={color1} stopOpacity="0.9" />
+                  <stop offset="100%" stopColor={color1} stopOpacity="0.7" />
+                </linearGradient>
+                <linearGradient id={`groupedBar2Gradient-${index}`} x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stopColor={color2} stopOpacity="0.9" />
+                  <stop offset="100%" stopColor={color2} stopOpacity="0.7" />
+                </linearGradient>
+              </defs>
               {/* Bar 1 */}
               <rect
                 x={groupX + gap}
                 y={bar1Y}
                 width={barWidth}
                 height={bar1Height}
-                fill={color1}
-                opacity="0.85"
+                fill={`url(#groupedBar1Gradient-${index})`}
+                opacity={hoveredIndex === index && hoveredBar === 'bar1' ? "1" : "0.85"}
                 className="hover:opacity-100 transition-opacity cursor-pointer"
+                rx="4"
+                ry="4"
+                onMouseMove={(e) => {
+                  if (!chartRef.current) return;
+                  
+                  setHoveredIndex(index);
+                  setHoveredBar('bar1');
+                  const chartRect = chartRef.current.getBoundingClientRect();
+                  const tooltipWidth = 180;
+                  const tooltipHeight = 80;
+                  const offset = 12;
+
+                  let tooltipX = e.clientX - chartRect.left + offset;
+                  let tooltipY = e.clientY - chartRect.top + offset;
+
+                  // Check if tooltip would overflow right edge
+                  if (tooltipX + tooltipWidth > chartRect.width) {
+                    tooltipX = e.clientX - chartRect.left - tooltipWidth - offset;
+                  }
+
+                  // Check if tooltip would overflow bottom edge
+                  if (tooltipY + tooltipHeight > chartRect.height) {
+                    tooltipY = e.clientY - chartRect.top - tooltipHeight - offset;
+                  }
+
+                  // Ensure tooltip doesn't go off left edge
+                  if (tooltipX < 0) {
+                    tooltipX = offset;
+                  }
+
+                  // Ensure tooltip doesn't go off top edge
+                  if (tooltipY < 0) {
+                    tooltipY = offset;
+                  }
+
+                  setTooltipPosition({ x: tooltipX, y: tooltipY });
+                }}
+                onMouseLeave={() => {
+                  setHoveredIndex(null);
+                  setHoveredBar(null);
+                }}
               />
               <text
                 x={groupX + gap + barWidth / 2}
@@ -106,9 +179,50 @@ export default function GroupedBarChart({
                 y={bar2Y}
                 width={barWidth}
                 height={bar2Height}
-                fill={color2}
-                opacity="0.85"
+                fill={`url(#groupedBar2Gradient-${index})`}
+                opacity={hoveredIndex === index && hoveredBar === 'bar2' ? "1" : "0.85"}
                 className="hover:opacity-100 transition-opacity cursor-pointer"
+                rx="4"
+                ry="4"
+                onMouseMove={(e) => {
+                  if (!chartRef.current) return;
+                  
+                  setHoveredIndex(index);
+                  setHoveredBar('bar2');
+                  const chartRect = chartRef.current.getBoundingClientRect();
+                  const tooltipWidth = 180;
+                  const tooltipHeight = 80;
+                  const offset = 12;
+
+                  let tooltipX = e.clientX - chartRect.left + offset;
+                  let tooltipY = e.clientY - chartRect.top + offset;
+
+                  // Check if tooltip would overflow right edge
+                  if (tooltipX + tooltipWidth > chartRect.width) {
+                    tooltipX = e.clientX - chartRect.left - tooltipWidth - offset;
+                  }
+
+                  // Check if tooltip would overflow bottom edge
+                  if (tooltipY + tooltipHeight > chartRect.height) {
+                    tooltipY = e.clientY - chartRect.top - tooltipHeight - offset;
+                  }
+
+                  // Ensure tooltip doesn't go off left edge
+                  if (tooltipX < 0) {
+                    tooltipX = offset;
+                  }
+
+                  // Ensure tooltip doesn't go off top edge
+                  if (tooltipY < 0) {
+                    tooltipY = offset;
+                  }
+
+                  setTooltipPosition({ x: tooltipX, y: tooltipY });
+                }}
+                onMouseLeave={() => {
+                  setHoveredIndex(null);
+                  setHoveredBar(null);
+                }}
               />
               <text
                 x={groupX + gap + barWidth + gap + barWidth / 2}
@@ -185,6 +299,28 @@ export default function GroupedBarChart({
           </text>
         )}
       </svg>
+      
+      {/* Tooltip */}
+      {hoveredIndex !== null && hoveredBar && (
+        <div
+          className="absolute z-50 bg-[#1f2937] border border-[#374151] rounded-lg p-3 shadow-lg pointer-events-none"
+          style={{
+            left: `${tooltipPosition.x}px`,
+            top: `${tooltipPosition.y}px`,
+            minWidth: "180px",
+          }}
+        >
+          <div className="text-white font-bold text-lg mb-2">
+            {hoveredBar === 'bar1' ? data[hoveredIndex].label1 : data[hoveredIndex].label2}
+          </div>
+          <div className="text-white text-2xl font-bold mb-1">
+            {hoveredBar === 'bar1' ? data[hoveredIndex].value1.toLocaleString() : data[hoveredIndex].value2.toLocaleString()}
+          </div>
+          <div className="text-cyan-400 text-sm">
+            {data[hoveredIndex].label}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

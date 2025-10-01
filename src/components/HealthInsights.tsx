@@ -4,7 +4,7 @@ import { useHealthData } from '@/hooks/useHealthData';
 import IndicatorCard from './IndicatorCard';
 import RefreshDataButton from './RefreshDataButton';
 import BarChart from './charts/BarChart';
-import PieChart from './charts/PieChart';
+
 import { Indicator } from '@/types/indicator';
 
 export default function HealthInsights() {
@@ -56,6 +56,8 @@ export default function HealthInsights() {
       lastUpdate: new Date(data.lastUpdated).toISOString().split('T')[0],
       source: 'NYC DOHMH',
       color: '#3b82f6',
+      higherIsBetter: true,
+      explanation: 'Number of food safety inspections performed. More inspections mean better oversight and protection of public health.',
     },
     {
       id: 'health-2',
@@ -70,6 +72,8 @@ export default function HealthInsights() {
       source: 'NYC DOHMH',
       trend: gradeAPercent >= 80 ? 'up' : 'stable',
       color: '#10b981',
+      higherIsBetter: true,
+      explanation: 'Restaurants meeting highest sanitation standards. Higher rates indicate better food safety practices and reduced risk of foodborne illness.',
     },
     {
       id: 'health-3',
@@ -84,6 +88,8 @@ export default function HealthInsights() {
       source: 'NYC DOHMH',
       trend: 'down',
       color: '#ef4444',
+      higherIsBetter: false,
+      explanation: 'Serious health hazards found during inspections. Lower numbers mean safer food handling and reduced public health risks.',
     },
     {
       id: 'health-4',
@@ -97,6 +103,8 @@ export default function HealthInsights() {
       lastUpdate: new Date(data.lastUpdated).toISOString().split('T')[0],
       source: 'NYC DOHMH',
       color: '#ec4899',
+      higherIsBetter: false,
+      explanation: 'Most common cause of mortality in NYC. Lower death counts indicate improving public health outcomes and effective interventions.',
     },
     {
       id: 'health-5',
@@ -112,6 +120,8 @@ export default function HealthInsights() {
         year: parseInt(y.year),
         value: y.deaths,
       })),
+      higherIsBetter: false,
+      explanation: 'Overall mortality count from recent vital statistics. Tracking trends helps identify public health challenges and measure population health.',
     },
     {
       id: 'health-6',
@@ -126,6 +136,8 @@ export default function HealthInsights() {
       source: 'NYC DOHMH',
       trend: 'down',
       color: '#f59e0b',
+      higherIsBetter: false,
+      explanation: 'Establishments with suboptimal sanitation scores. Lower counts mean more restaurants are maintaining excellent food safety standards.',
     },
   ];
 
@@ -148,69 +160,7 @@ export default function HealthInsights() {
         ))}
       </div>
 
-      {/* Restaurant Grades Distribution */}
-      <div className="bg-[#111827] border border-[#1f2937] rounded-lg p-6">
-        <div className="mb-4">
-          <h3 className="text-xl font-semibold text-white">Restaurant Food Safety Grades</h3>
-          <p className="text-sm text-gray-400 mt-1">
-            Grade distribution from recent inspections • Source: NYC DOHMH Restaurant Inspections
-          </p>
-        </div>
-        <PieChart
-          data={[
-            {
-              label: 'Grade A - Excellent',
-              value: data.restaurantStats.gradeA,
-              percentage: (data.restaurantStats.gradeA / totalGraded) * 100,
-            },
-            {
-              label: 'Grade B - Good',
-              value: data.restaurantStats.gradeB,
-              percentage: (data.restaurantStats.gradeB / totalGraded) * 100,
-            },
-            {
-              label: 'Grade C - Needs Improvement',
-              value: data.restaurantStats.gradeC,
-              percentage: (data.restaurantStats.gradeC / totalGraded) * 100,
-            },
-          ]}
-          title=""
-          size={450}
-        />
-      </div>
-
-      {/* Top Causes of Death */}
-      <div className="bg-[#111827] border border-[#1f2937] rounded-lg p-6">
-        <div className="mb-4">
-          <h3 className="text-xl font-semibold text-white">Top 10 Leading Causes of Death</h3>
-          <p className="text-sm text-gray-400 mt-1">
-            Source: NYC DOHMH Vital Statistics
-          </p>
-        </div>
-        <div className="space-y-3">
-          {data.mortalityStats.topCauses.filter(c => c.deaths > 0).map((cause, index) => (
-            <div key={cause.cause}>
-              <div className="flex justify-between text-sm mb-1">
-                <span className="text-gray-300 flex items-center gap-2">
-                  <span className="text-cyan-400 font-bold">#{index + 1}</span>
-                  <span className="truncate">{cause.cause}</span>
-                </span>
-                <span className="text-red-400 font-semibold whitespace-nowrap ml-2">
-                  {cause.deaths.toLocaleString()} ({(cause.percentage || 0).toFixed(1)}%)
-                </span>
-              </div>
-              <div className="w-full bg-[#1f2937] rounded-full h-2">
-                <div
-                  className="h-2 rounded-full bg-gradient-to-r from-red-500 to-pink-500"
-                  style={{ width: `${Math.min(cause.percentage || 0, 100)}%` }}
-                />
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Inspections by Borough */}
+      {/* Borough Distributions */}
       <div className="bg-[#111827] border border-[#1f2937] rounded-lg p-6">
         <BarChart
           data={Object.entries(data.restaurantStats.inspectionsByBorough)
@@ -223,7 +173,6 @@ export default function HealthInsights() {
             .sort((a, b) => b.value - a.value)}
           title="Restaurant Inspections by Borough"
           height={400}
-          color="#3b82f6"
           xAxisLabel="Borough"
           yAxisLabel="Number of Inspections"
         />

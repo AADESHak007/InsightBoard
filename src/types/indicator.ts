@@ -12,6 +12,8 @@ export interface Indicator {
   trend?: 'up' | 'down' | 'stable';
   chartData?: ChartDataPoint[];
   color?: string;
+  higherIsBetter?: boolean; // true = higher is better, false = lower is better, undefined = neutral
+  explanation?: string; // What this metric means and its significance
 }
 
 export interface ChartDataPoint {

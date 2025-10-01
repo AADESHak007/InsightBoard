@@ -57,6 +57,8 @@ export default function EnvironmentInsights() {
       source: 'NYC DEP',
       trend: data.airQualityStats.avgPM25 < 10 ? 'down' : 'stable',
       color: '#10b981',
+      higherIsBetter: false,
+      explanation: 'Microscopic airborne particles that penetrate lungs and bloodstream. Lower levels mean cleaner air and reduced respiratory health risks.',
     },
     {
       id: 'env-2',
@@ -71,6 +73,8 @@ export default function EnvironmentInsights() {
       source: 'NYC DEP',
       trend: 'stable',
       color: '#3b82f6',
+      higherIsBetter: false,
+      explanation: 'Toxic gas primarily from vehicle emissions and power plants. Lower concentrations indicate better air quality and reduced asthma triggers.',
     },
     {
       id: 'env-3',
@@ -85,6 +89,8 @@ export default function EnvironmentInsights() {
       source: 'NYC DEP',
       trend: 'stable',
       color: '#06b6d4',
+      higherIsBetter: false,
+      explanation: 'Harmful pollutant formed by sunlight and emissions. Lower levels mean healthier air, especially for vulnerable populations.',
     },
     {
       id: 'env-4',
@@ -96,6 +102,8 @@ export default function EnvironmentInsights() {
       lastUpdate: '2015-08-01',
       source: 'NYC Parks',
       color: '#22c55e',
+      higherIsBetter: true,
+      explanation: 'Urban forest canopy providing shade, air filtration, and cooling. More trees mean improved air quality and neighborhood livability.',
     },
     {
       id: 'env-5',
@@ -110,6 +118,8 @@ export default function EnvironmentInsights() {
       source: 'NYC Parks',
       trend: treeHealthPercent >= 70 ? 'up' : 'stable',
       color: '#84cc16',
+      higherIsBetter: true,
+      explanation: 'Vitality of urban tree canopy. Healthy trees maximize environmental benefits like carbon capture and heat reduction.',
     },
     {
       id: 'env-6',
@@ -121,6 +131,8 @@ export default function EnvironmentInsights() {
       lastUpdate: new Date(data.lastUpdated).toISOString().split('T')[0],
       source: 'NYC DEP',
       color: '#8b5cf6',
+      higherIsBetter: true,
+      explanation: 'Volume of air quality monitoring data collected. More measurements mean better understanding and tracking of environmental conditions.',
     },
   ];
 
@@ -134,6 +146,19 @@ export default function EnvironmentInsights() {
           <span className="text-gray-500">• Updated {new Date(data.lastUpdated).toLocaleString()}</span>
         </div>
         <RefreshDataButton onRefresh={refetch} />
+      </div>
+
+      {/* Data Alert for Tree Data */}
+      <div className="mb-6 p-3 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
+        <div className="flex items-center gap-2 text-yellow-400">
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+          <span className="text-sm font-medium">
+            <strong>Data Alert:</strong> Street tree data is from 2015 census and not actively maintained. 
+            Air quality data is current and regularly updated.
+          </span>
+        </div>
       </div>
 
       {/* Main Stats */}

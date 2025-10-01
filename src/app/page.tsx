@@ -9,6 +9,7 @@ import BusinessChartsView from '@/components/BusinessChartsView';
 import EducationInsights from '@/components/EducationInsights';
 import EducationChartsView from '@/components/EducationChartsView';
 import HousingInsights from '@/components/HousingInsights';
+import HousingChartsView from '@/components/HousingChartsView';
 import HealthInsights from '@/components/HealthInsights';
 import HealthChartsView from '@/components/HealthChartsView';
 import PublicSafetyInsights from '@/components/PublicSafetyInsights';
@@ -18,6 +19,7 @@ import EnvironmentChartsView from '@/components/EnvironmentChartsView';
 import TransportationInsights from '@/components/TransportationInsights';
 import TransportationChartsView from '@/components/TransportationChartsView';
 import AllInsights from '@/components/AllInsights';
+import AllChartsView from '@/components/AllChartsView';
 import { dummyIndicators } from '@/data/dummyData';
 import { Category, ViewMode } from '@/types/indicator';
 import { 
@@ -30,8 +32,7 @@ import {
 export default function Home() {
   const [selectedCategory, setSelectedCategory] = useState<Category>('All');
   const [viewMode, setViewMode] = useState<ViewMode>('card');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [showCharts, setShowCharts] = useState(true);
+  const [searchQuery,] = useState('');
 
   const filteredIndicators = dummyIndicators.filter(indicator => {
     const matchesCategory = selectedCategory === 'All' || indicator.category === selectedCategory;
@@ -45,7 +46,6 @@ export default function Home() {
       <Sidebar 
         selectedCategory={selectedCategory} 
         onCategoryChange={setSelectedCategory}
-        onSearch={setSearchQuery}
       />
       
       <main className="flex-1 ml-64 p-8">
@@ -69,7 +69,7 @@ export default function Home() {
               }`}
             >
               <Squares2X2Icon className="w-5 h-5" />
-              Card View
+              Overview
             </button>
             <button
               onClick={() => setViewMode('chart')}
@@ -80,7 +80,7 @@ export default function Home() {
               }`}
             >
               <ChartBarIcon className="w-5 h-5" />
-              Chart View
+              Visualize
             </button>
             <button
               onClick={() => setViewMode('table')}
@@ -106,22 +106,6 @@ export default function Home() {
             </button>
           </div>
 
-          {/* Charts Toggle */}
-          <div className="flex items-center gap-3">
-            <span className="text-sm text-gray-400">Charts</span>
-            <button
-              onClick={() => setShowCharts(!showCharts)}
-              className={`relative w-12 h-6 rounded-full transition-colors ${
-                showCharts ? 'bg-cyan-500' : 'bg-[#1f2937]'
-              }`}
-            >
-              <div
-                className={`absolute top-0.5 w-5 h-5 bg-white rounded-full transition-transform ${
-                  showCharts ? 'translate-x-6' : 'translate-x-0.5'
-                }`}
-              />
-            </button>
-          </div>
         </div>
 
         {/* Content */}
@@ -155,10 +139,14 @@ export default function Home() {
 
         {viewMode === 'chart' && (
           <>
-            {selectedCategory === 'Business' ? (
+            {selectedCategory === 'All' ? (
+              <AllChartsView />
+            ) : selectedCategory === 'Business' ? (
               <BusinessChartsView />
             ) : selectedCategory === 'Education' ? (
               <EducationChartsView />
+            ) : selectedCategory === 'Housing' ? (
+              <HousingChartsView />
             ) : selectedCategory === 'Health' ? (
               <HealthChartsView />
             ) : selectedCategory === 'Public Safety' ? (
@@ -225,7 +213,6 @@ export default function Home() {
           <div className="bg-[#111827] border border-[#1f2937] rounded-lg p-12 text-center">
             <MapIcon className="w-16 h-16 text-gray-600 mx-auto mb-4" />
             <h3 className="text-xl font-semibold text-white mb-2">Map View Coming Soon</h3>
-            <p className="text-gray-400">Geographic visualization will be available when connected to real NYC data.</p>
           </div>
         )}
 

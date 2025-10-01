@@ -56,6 +56,8 @@ export default function EducationInsights() {
         year: parseInt(t.year.split('-')[0]),
         value: t.enrollment,
       })),
+      higherIsBetter: true,
+      explanation: 'Total children accessing public education. Higher enrollment indicates strong public school system participation and youth population growth.',
     },
     {
       id: 'edu-2',
@@ -74,6 +76,7 @@ export default function EducationInsights() {
         year: parseInt(t.year.split('-')[0]),
         value: (t.disabilities / t.enrollment) * 100,
       })),
+      explanation: 'Share of students receiving special education services. This metric tracks accessibility and support for students with diverse learning needs.',
     },
     {
       id: 'edu-3',
@@ -92,6 +95,7 @@ export default function EducationInsights() {
         year: parseInt(t.year.split('-')[0]),
         value: (t.ell / t.enrollment) * 100,
       })),
+      explanation: 'Students learning English as a new language. Reflects cultural diversity and the need for language support resources in schools.',
     },
     {
       id: 'edu-4',
@@ -110,6 +114,8 @@ export default function EducationInsights() {
         year: parseInt(t.year.split('-')[0]),
         value: (t.poverty / t.enrollment) * 100,
       })),
+      higherIsBetter: false,
+      explanation: 'Children living in economic hardship. Lower percentages indicate improving family economic conditions and reduced need for assistance programs.',
     },
     {
       id: 'edu-5',
@@ -128,6 +134,8 @@ export default function EducationInsights() {
         year: parseInt(t.year.split('-')[0]),
         value: t.economicNeedIndex,
       })),
+      higherIsBetter: false,
+      explanation: 'Composite measure of student economic disadvantage. Lower index means less poverty, better housing stability, and improved family economic security.',
     },
     {
       id: 'edu-6',
@@ -139,6 +147,8 @@ export default function EducationInsights() {
       lastUpdate: new Date(data.lastUpdated).toISOString().split('T')[0],
       source: 'NYC DOE',
       color: '#06b6d4',
+      higherIsBetter: true,
+      explanation: 'Total number of public schools serving NYC communities. More schools can mean greater access and neighborhood education options.',
     },
   ];
 
@@ -156,7 +166,7 @@ export default function EducationInsights() {
       percentage: (data.demographicBreakdown.hispanic / totalStudents) * 100,
     },
     {
-      label: 'Black',
+      label: 'African American',
       value: data.demographicBreakdown.black,
       percentage: (data.demographicBreakdown.black / totalStudents) * 100,
     },
@@ -216,45 +226,6 @@ export default function EducationInsights() {
         />
       </div>
 
-      {/* Key Metrics Over Time */}
-      <div className="bg-[#111827] border border-[#1f2937] rounded-lg p-6">
-        <h3 className="text-xl font-semibold text-white mb-4">Trends Over Time (2013-2018)</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Enrollment Trend */}
-          <div>
-            <h4 className="text-sm font-medium text-gray-400 mb-3">Total Enrollment</h4>
-            <div className="space-y-2">
-              {data.yearlyTrends.map((trend) => (
-                <div key={trend.year} className="flex justify-between text-sm">
-                  <span className="text-gray-300">{trend.year}</span>
-                  <span className="text-cyan-400 font-semibold">{trend.enrollment.toLocaleString()}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Poverty Trend */}
-          <div>
-            <h4 className="text-sm font-medium text-gray-400 mb-3">Economic Need Index (Average)</h4>
-            <div className="space-y-2">
-              {data.yearlyTrends.map((trend) => (
-                <div key={trend.year}>
-                  <div className="flex justify-between text-sm mb-1">
-                    <span className="text-gray-300">{trend.year}</span>
-                    <span className="text-orange-400 font-semibold">{trend.economicNeedIndex.toFixed(1)}%</span>
-                  </div>
-                  <div className="w-full bg-[#1f2937] rounded-full h-1.5">
-                    <div
-                      className="h-1.5 rounded-full bg-gradient-to-r from-orange-500 to-red-500"
-                      style={{ width: `${trend.economicNeedIndex}%` }}
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
   );
 }

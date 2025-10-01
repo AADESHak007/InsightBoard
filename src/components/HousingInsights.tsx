@@ -4,8 +4,6 @@ import { useHousingData } from '@/hooks/useHousingData';
 import IndicatorCard from './IndicatorCard';
 import RefreshDataButton from './RefreshDataButton';
 import BarChart from './charts/BarChart';
-import GroupedBarChart from './charts/GroupedBarChart';
-import PieChart from './charts/PieChart';
 import { Indicator } from '@/types/indicator';
 
 export default function HousingInsights() {
@@ -63,6 +61,8 @@ export default function HousingInsights() {
         year: t.year,
         value: t.permits,
       })),
+      higherIsBetter: true,
+      explanation: 'Building permits for construction and renovation. More permits indicate active development, property improvements, and housing supply growth.',
     },
     {
       id: 'housing-2',
@@ -75,6 +75,8 @@ export default function HousingInsights() {
       source: 'NYC DOB',
       trend: 'up',
       color: '#10b981',
+      higherIsBetter: true,
+      explanation: 'New construction activity creating additional housing units. Higher values mean increased housing supply to address demand.',
     },
     {
       id: 'housing-3',
@@ -86,6 +88,8 @@ export default function HousingInsights() {
       lastUpdate: new Date(data.lastUpdated).toISOString().split('T')[0],
       source: 'NYC HPD',
       color: '#ef4444',
+      higherIsBetter: false,
+      explanation: 'Code violations affecting housing quality and safety. Lower numbers indicate better maintained properties and improved living conditions.',
     },
     {
       id: 'housing-4',
@@ -100,6 +104,8 @@ export default function HousingInsights() {
       source: 'NYC HPD',
       trend: 'down',
       color: '#f59e0b',
+      higherIsBetter: false,
+      explanation: 'Unresolved housing issues currently impacting residents. Fewer open violations mean faster resolution and better tenant protection.',
     },
     {
       id: 'housing-5',
@@ -114,6 +120,8 @@ export default function HousingInsights() {
       source: 'NYC HPD',
       trend: closureRate >= 70 ? 'up' : 'stable',
       color: '#8b5cf6',
+      higherIsBetter: true,
+      explanation: 'Efficiency of addressing and fixing housing violations. Higher rates indicate effective enforcement and landlord responsiveness.',
     },
     {
       id: 'housing-6',
@@ -128,6 +136,8 @@ export default function HousingInsights() {
       source: 'NYC HPD',
       trend: 'down',
       color: '#ec4899',
+      higherIsBetter: false,
+      explanation: 'Critical safety hazards posing immediate danger to residents. Lower counts mean fewer life-threatening housing conditions.',
     },
   ];
 
@@ -169,78 +179,6 @@ export default function HousingInsights() {
         />
       </div>
 
-      {/* Permits vs Violations - Grouped Bar Chart */}
-      <div className="bg-[#111827] border border-[#1f2937] rounded-lg p-6">
-        <div className="mb-4">
-          <h3 className="text-xl font-semibold text-white mb-2">Permits vs Violations by Borough</h3>
-          <p className="text-sm text-gray-400">
-            Compares construction activity with housing code violations. Lower violations relative to permits = better compliance.
-          </p>
-        </div>
-        <GroupedBarChart
-          data={data.correlation.map(c => ({
-            label: c.borough,
-            value1: c.permits,
-            value2: c.violations,
-            label1: 'Permits',
-            label2: 'Violations',
-          }))}
-          title=""
-          height={450}
-          color1="#3b82f6"
-          color2="#ef4444"
-          xAxisLabel="Borough"
-          yAxisLabel="Count"
-        />
-        
-        {/* Ratio Analysis */}
-        <div className="mt-6 grid grid-cols-2 md:grid-cols-5 gap-3">
-          {data.correlation.map((borough) => (
-            <div key={borough.borough} className="bg-[#1a1f2e] rounded-lg p-3 text-center">
-              <div className="text-xs text-gray-400 mb-1">{borough.borough}</div>
-              <div className={`text-2xl font-bold ${
-                borough.ratio < 0.5 ? 'text-green-400' : 
-                borough.ratio < 1.0 ? 'text-yellow-400' : 
-                'text-red-400'
-              }`}>
-                {borough.ratio.toFixed(2)}
-              </div>
-              <div className="text-xs text-gray-500">V/P ratio</div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Violation Severity - Pie Chart */}
-      <div className="bg-[#111827] border border-[#1f2937] rounded-lg p-6">
-        <div className="mb-4">
-          <h3 className="text-xl font-semibold text-white">Violation Severity Distribution</h3>
-          <p className="text-sm text-gray-400 mt-1">
-            Class A: Non-hazardous • Class B: Hazardous • Class C: Immediately Hazardous
-          </p>
-        </div>
-        <PieChart
-          data={[
-            {
-              label: 'Class A - Non-Hazardous',
-              value: data.violationStats.classA,
-              percentage: (data.violationStats.classA / data.violationStats.totalViolations) * 100,
-            },
-            {
-              label: 'Class B - Hazardous',
-              value: data.violationStats.classB,
-              percentage: (data.violationStats.classB / data.violationStats.totalViolations) * 100,
-            },
-            {
-              label: 'Class C - Immediately Hazardous',
-              value: data.violationStats.classC,
-              percentage: (data.violationStats.classC / data.violationStats.totalViolations) * 100,
-            },
-          ]}
-          title=""
-          size={450}
-        />
-      </div>
     </div>
   );
 }

@@ -56,6 +56,8 @@ export default function PublicSafetyInsights() {
         year: t.year,
         value: t.crimes,
       })),
+      higherIsBetter: false,
+      explanation: 'Total reported criminal incidents in the city. Lower crime rates indicate safer neighborhoods and improved public safety.',
     },
     {
       id: 'safety-2',
@@ -70,6 +72,8 @@ export default function PublicSafetyInsights() {
       source: 'NYPD',
       trend: 'down',
       color: '#dc2626',
+      higherIsBetter: false,
+      explanation: 'Most serious criminal offenses with severe penalties. Lower counts mean reduced violent crime and enhanced community safety.',
     },
     {
       id: 'safety-3',
@@ -81,6 +85,8 @@ export default function PublicSafetyInsights() {
       lastUpdate: new Date(data.lastUpdated).toISOString().split('T')[0],
       source: 'NYPD',
       color: '#f59e0b',
+      higherIsBetter: false,
+      explanation: 'Traffic accidents across NYC streets. Fewer collisions indicate safer road conditions and better traffic safety measures.',
     },
     {
       id: 'safety-4',
@@ -95,6 +101,8 @@ export default function PublicSafetyInsights() {
       source: 'NYPD',
       trend: 'down',
       color: '#fb923c',
+      higherIsBetter: false,
+      explanation: 'People harmed in traffic crashes. Lower injury counts mean safer transportation and effective Vision Zero initiatives.',
     },
     {
       id: 'safety-5',
@@ -109,6 +117,8 @@ export default function PublicSafetyInsights() {
       source: 'NYPD',
       trend: 'down',
       color: '#dc2626', // Brighter red for visibility
+      higherIsBetter: false,
+      explanation: 'Lives lost on NYC streets. Every reduction brings us closer to Vision Zero goal of eliminating traffic deaths entirely.',
     },
     {
       id: 'safety-6',
@@ -123,6 +133,8 @@ export default function PublicSafetyInsights() {
       source: 'NYPD',
       trend: 'down',
       color: '#ec4899',
+      higherIsBetter: false,
+      explanation: 'Pedestrians harmed in traffic crashes. Lower numbers indicate safer streets and improved pedestrian infrastructure.',
     },
   ];
 
