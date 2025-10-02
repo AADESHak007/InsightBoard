@@ -145,12 +145,12 @@ export default function HealthInsights() {
     <div className="space-y-6">
       {/* Category Header */}
       <div className="mb-6">
-        <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2">Health Sector</h2>
-        <p className="text-gray-400 text-sm sm:text-base">Public health indicators and food safety metrics</p>
+        <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-white mb-2">Health Sector</h2>
+        <p className="text-gray-400 text-sm sm:text-base md:text-lg">Public health indicators and food safety metrics</p>
       </div>
 
       {/* Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0 mb-6">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 mb-6">
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 text-xs sm:text-sm">
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>

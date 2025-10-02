@@ -142,16 +142,19 @@ export default function PublicSafetyInsights() {
     <div className="space-y-6">
       {/* Category Header */}
       <div className="mb-6">
-        <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2">Public Safety Sector</h2>
-        <p className="text-gray-400 text-sm sm:text-base">Crime statistics and traffic safety indicators</p>
+        <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-white mb-2">Public Safety Sector</h2>
+        <p className="text-gray-400 text-sm sm:text-base md:text-lg">Crime statistics and traffic safety indicators</p>
       </div>
 
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2 text-sm">
-          <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-          <span className="text-gray-400">Live data from NYC Open Data</span>
-          <span className="text-gray-500">• Updated {new Date(data.lastUpdated).toLocaleString()}</span>
+      {/* Header with live data and refresh button */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 mb-6">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 text-xs sm:text-sm">
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+            <span className="text-gray-400">Live data from NYC Open Data</span>
+          </div>
+          <span className="text-gray-500 hidden sm:inline">• Updated {new Date(data.lastUpdated).toLocaleString()}</span>
+          <span className="text-gray-500 sm:hidden">Updated {new Date(data.lastUpdated).toLocaleDateString()}</span>
         </div>
         <RefreshDataButton onRefresh={refetch} />
       </div>

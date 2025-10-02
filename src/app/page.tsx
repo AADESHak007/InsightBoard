@@ -70,7 +70,7 @@ export default function Home() {
             >
               <Squares2X2Icon className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6" />
               <span className="hidden sm:inline">Overview</span>
-              <span className="sm:hidden">Cards</span>
+              <span className="sm:hidden">Overview</span>
             </button>
             <button
               onClick={() => setViewMode('chart')}
@@ -82,7 +82,7 @@ export default function Home() {
             >
               <ChartBarIcon className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6" />
               <span className="hidden sm:inline">Visualize</span>
-              <span className="sm:hidden">Charts</span>
+              <span className="sm:hidden">Visualize</span>
             </button>
             <button
               onClick={() => setViewMode('table')}
