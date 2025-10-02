@@ -13,12 +13,12 @@ export default function BusinessInsights() {
 
   if (loading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-5">
-        {[1, 2, 3].map((i) => (
-          <div key={i} className="bg-[#111827] border border-[#1f2937] rounded-lg p-5 animate-pulse">
-            <div className="h-6 bg-[#1f2937] rounded w-3/4 mb-4"></div>
-            <div className="h-4 bg-[#1f2937] rounded w-1/2 mb-6"></div>
-            <div className="h-12 bg-[#1f2937] rounded w-full"></div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5">
+        {[1, 2, 3, 4].map((i) => (
+          <div key={i} className="bg-[#111827] border border-[#1f2937] rounded-lg p-4 sm:p-5 animate-pulse">
+            <div className="h-5 sm:h-6 bg-[#1f2937] rounded w-3/4 mb-3 sm:mb-4"></div>
+            <div className="h-3 sm:h-4 bg-[#1f2937] rounded w-1/2 mb-4 sm:mb-6"></div>
+            <div className="h-10 sm:h-12 bg-[#1f2937] rounded w-full"></div>
           </div>
         ))}
       </div>
@@ -157,18 +157,27 @@ export default function BusinessInsights() {
 
   return (
     <div className="space-y-6">
+      {/* Category Header */}
+      <div className="mb-6">
+        <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2">Business Sector</h2>
+        <p className="text-gray-400 text-sm sm:text-base">Comprehensive business development indicators and metrics</p>
+      </div>
+
       {/* Header with live data badge and refresh button */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2 text-sm">
-          <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-          <span className="text-gray-400">Live data from NYC Open Data</span>
-          <span className="text-gray-500">• Updated {new Date(data.lastUpdated).toLocaleString()}</span>
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0 mb-6">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 text-xs sm:text-sm">
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+            <span className="text-gray-400">Live data from NYC Open Data</span>
+          </div>
+          <span className="text-gray-500 hidden sm:inline">• Updated {new Date(data.lastUpdated).toLocaleString()}</span>
+          <span className="text-gray-500 sm:hidden">Updated {new Date(data.lastUpdated).toLocaleDateString()}</span>
         </div>
         <RefreshDataButton onRefresh={refetch} />
       </div>
 
       {/* Main Stats - Full Width for Top Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5 mb-6">
         {indicators.slice(0, 4).map((indicator) => (
           <IndicatorCard key={indicator.id} indicator={indicator} />
         ))}
@@ -176,7 +185,7 @@ export default function BusinessInsights() {
 
       {/* Job Creation Stats */}
       {indicators.length > 4 && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5 mb-6">
           {indicators.slice(4).map((indicator) => (
             <IndicatorCard key={indicator.id} indicator={indicator} />
           ))}
@@ -184,7 +193,7 @@ export default function BusinessInsights() {
       )}
 
       {/* Borough Distribution - Bar Chart */}
-      <div className="bg-[#111827] border border-[#1f2937] rounded-lg p-6">
+      <div className="bg-[#111827] border border-[#1f2937] rounded-lg p-4 sm:p-6">
         <BarChart
           data={data.breakdowns.boroughs.map(b => ({
             label: b.borough,
@@ -192,7 +201,7 @@ export default function BusinessInsights() {
             percentage: b.percentage,
           }))}
           title="Borough Distribution"
-          height={400}
+          height={300}
           color="#06b6d4"
           xAxisLabel="Borough"
           yAxisLabel="Number of Businesses"
@@ -200,7 +209,7 @@ export default function BusinessInsights() {
       </div>
 
       {/* Borough Distributions */}
-      <div className="bg-[#111827] border border-[#1f2937] rounded-lg p-6">
+      <div className="bg-[#111827] border border-[#1f2937] rounded-lg p-4 sm:p-6">
         <BarChart
           data={[
             { label: 'Manhattan', value: 4500, percentage: 28.5 },
@@ -210,7 +219,7 @@ export default function BusinessInsights() {
             { label: 'Staten Island', value: 1500, percentage: 9.5 },
           ]}
           title="Certified Businesses by Borough"
-          height={400}
+          height={300}
           xAxisLabel="Borough"
           yAxisLabel="Number of Businesses"
         />

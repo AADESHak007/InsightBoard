@@ -26,7 +26,7 @@ const DISTINCTIVE_COLORS = [
   '#14b8a6', // teal
 ];
 
-export default function PieChart({ data, title, size = 450, dataAlert }: PieChartProps) {
+export default function PieChart({ data, title, size = 300, dataAlert }: PieChartProps) {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
   const chartRef = useRef<HTMLDivElement>(null);
@@ -86,23 +86,23 @@ export default function PieChart({ data, title, size = 450, dataAlert }: PieChar
 
   return (
     <div className="w-full relative" ref={chartRef}>
-      {title && <h3 className="text-xl font-semibold text-white mb-4">{title}</h3>}
+      {title && <h3 className="text-lg sm:text-xl font-semibold text-white mb-3 sm:mb-4">{title}</h3>}
       
       {/* Data Alert */}
       {dataAlert && (
-        <div className="mb-4 p-3 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
+        <div className="mb-3 sm:mb-4 p-3 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
           <div className="flex items-center gap-2 text-yellow-400">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
             </svg>
-            <span className="text-sm font-medium">{dataAlert}</span>
+            <span className="text-xs sm:text-sm font-medium">{dataAlert}</span>
           </div>
         </div>
       )}
       
-      <div className="flex flex-col lg:flex-row items-center justify-center gap-8">
+      <div className="flex flex-col lg:flex-row items-center justify-center gap-6 lg:gap-8">
         {/* Pie Chart */}
-        <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="flex-shrink-0">
+        <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="flex-shrink-0 max-w-full">
           {slices.map((slice, index) => (
             <g key={index} className="group cursor-pointer">
               {/* Gradient definitions */}
@@ -212,22 +212,22 @@ export default function PieChart({ data, title, size = 450, dataAlert }: PieChar
         </svg>
 
         {/* Legend */}
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-2 sm:gap-3 w-full lg:w-auto">
           {slices.map((slice, index) => (
             <div 
               key={index} 
-              className={`flex items-center gap-3 group cursor-pointer hover:bg-[#1a1f2e] p-2 rounded-lg transition-colors ${
+              className={`flex items-center gap-2 sm:gap-3 group cursor-pointer hover:bg-[#1a1f2e] p-2 rounded-lg transition-colors ${
                 hoveredIndex === index ? 'bg-[#1a1f2e]' : ''
               }`}
               onMouseEnter={() => setHoveredIndex(index)}
               onMouseLeave={() => setHoveredIndex(null)}
             >
               <div
-                className="w-4 h-4 rounded flex-shrink-0"
+                className="w-4 h-4 rounded flex-shrink-0 border border-gray-600"
                 style={{ backgroundColor: slice.color }}
               />
               <div className="flex-1 min-w-0">
-                <p className="text-sm text-white font-medium truncate">{slice.label}</p>
+                <p className="text-xs sm:text-sm text-white font-medium truncate">{slice.label}</p>
                 <p className="text-xs text-gray-400">
                   {slice.value.toLocaleString()} ({slice.percentage.toFixed(1)}%)
                 </p>

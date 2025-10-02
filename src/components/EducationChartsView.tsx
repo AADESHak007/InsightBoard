@@ -26,21 +26,31 @@ export default function EducationChartsView() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-white">Education Insights - Visualize</h2>
-          <p className="text-gray-400 mt-1">Comprehensive education data visualization</p>
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0 mb-6">
+        <div className="flex-1">
+          <h2 className="text-xl sm:text-2xl font-bold text-white">Education Insights - Visualize</h2>
+          <p className="text-sm sm:text-base text-gray-400 mt-1">Comprehensive education data visualization</p>
         </div>
-        <div className="flex items-center gap-4 text-sm text-gray-400">
-          <span className="text-gray-400">Live data from NYC Open Data</span>
-          <span className="text-gray-500">• Updated {new Date(data.lastUpdated).toLocaleString()}</span>
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 text-xs sm:text-sm">
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+            <span className="text-gray-400">Live data from NYC Open Data</span>
+          </div>
+          <span className="text-gray-500 hidden sm:inline">• Updated {new Date(data.lastUpdated).toLocaleString()}</span>
+          <span className="text-gray-500 sm:hidden">Updated {new Date(data.lastUpdated).toLocaleDateString()}</span>
         </div>
       </div>
 
       {/* Core Education Metrics */}
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         {/* Enrollment by Borough */}
-        <div className="bg-[#111827] border border-[#1f2937] rounded-lg p-6">
+        <div className="bg-[#111827] border border-[#1f2937] rounded-lg p-4 sm:p-6">
+          <div className="mb-3 sm:mb-4">
+            <h4 className="text-base sm:text-lg font-semibold text-white">Student Enrollment by Borough</h4>
+            <p className="text-xs sm:text-sm text-gray-400 mt-1">
+              Geographic distribution of student enrollment
+            </p>
+          </div>
           <BarChart
             data={[
               { label: 'Brooklyn', value: 320000, percentage: 28.8 },
@@ -49,15 +59,21 @@ export default function EducationChartsView() {
               { label: 'Bronx', value: 200000, percentage: 18.0 },
               { label: 'Staten Island', value: 90000, percentage: 8.1 },
             ]}
-            title="Student Enrollment by Borough"
-            height={400}
+            title=""
+            height={300}
             xAxisLabel="Borough"
             yAxisLabel="Number of Students"
           />
         </div>
 
         {/* School Distribution */}
-        <div className="bg-[#111827] border border-[#1f2937] rounded-lg p-6">
+        <div className="bg-[#111827] border border-[#1f2937] rounded-lg p-4 sm:p-6">
+          <div className="mb-3 sm:mb-4">
+            <h4 className="text-base sm:text-lg font-semibold text-white">School Distribution by Level</h4>
+            <p className="text-xs sm:text-sm text-gray-400 mt-1">
+              Distribution of schools by educational level
+            </p>
+          </div>
           <PieChart
             data={[
               {
@@ -76,8 +92,8 @@ export default function EducationChartsView() {
                 percentage: 16.0,
               },
             ]}
-            title="School Distribution by Level"
-            size={400}
+            title=""
+            size={300}
           />
         </div>
       </div>

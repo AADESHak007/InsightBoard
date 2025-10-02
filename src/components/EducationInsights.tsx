@@ -11,12 +11,12 @@ export default function EducationInsights() {
 
   if (loading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-5">
-        {[1, 2, 3].map((i) => (
-          <div key={i} className="bg-[#111827] border border-[#1f2937] rounded-lg p-5 animate-pulse">
-            <div className="h-6 bg-[#1f2937] rounded w-3/4 mb-4"></div>
-            <div className="h-4 bg-[#1f2937] rounded w-1/2 mb-6"></div>
-            <div className="h-12 bg-[#1f2937] rounded w-full"></div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5">
+        {[1, 2, 3, 4, 5, 6].map((i) => (
+          <div key={i} className="bg-[#111827] border border-[#1f2937] rounded-lg p-4 sm:p-5 animate-pulse">
+            <div className="h-5 sm:h-6 bg-[#1f2937] rounded w-3/4 mb-3 sm:mb-4"></div>
+            <div className="h-3 sm:h-4 bg-[#1f2937] rounded w-1/2 mb-4 sm:mb-6"></div>
+            <div className="h-10 sm:h-12 bg-[#1f2937] rounded w-full"></div>
           </div>
         ))}
       </div>
@@ -189,41 +189,52 @@ export default function EducationInsights() {
 
   return (
     <div className="space-y-6">
+      {/* Category Header */}
+      <div className="mb-6">
+        <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2">Education Sector</h2>
+        <p className="text-gray-400 text-sm sm:text-base">Student demographics and educational performance metrics</p>
+      </div>
+
       {/* Header with live data badge and refresh button */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2 text-sm">
-          <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-          <span className="text-gray-400">Live data from NYC Open Data</span>
-          <span className="text-gray-500">• Updated {new Date(data.lastUpdated).toLocaleString()}</span>
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0 mb-6">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 text-xs sm:text-sm">
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+            <span className="text-gray-400">Live data from NYC Open Data</span>
+          </div>
+          <span className="text-gray-500 hidden sm:inline">• Updated {new Date(data.lastUpdated).toLocaleString()}</span>
+          <span className="text-gray-500 sm:hidden">Updated {new Date(data.lastUpdated).toLocaleDateString()}</span>
         </div>
         <RefreshDataButton onRefresh={refetch} />
       </div>
 
       {/* Main Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5 mb-6">
         {indicators.map((indicator) => (
           <IndicatorCard key={indicator.id} indicator={indicator} />
         ))}
       </div>
 
       {/* Student Demographics - Pie Chart */}
-      <div className="bg-[#111827] border border-[#1f2937] rounded-lg p-6">
+      <div className="bg-[#111827] border border-[#1f2937] rounded-lg p-4 sm:p-6">
         <div className="mb-4">
-          <div className="flex items-center justify-between">
-            <h3 className="text-xl font-semibold text-white">Student Demographics</h3>
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 mb-2">
+            <h3 className="text-lg sm:text-xl font-semibold text-white">Student Demographics</h3>
             <span className="text-xs text-gray-400 bg-[#1a1f2e] px-3 py-1 rounded-full">
               {totalStudents.toLocaleString()} total students
             </span>
           </div>
-          <p className="text-sm text-gray-400 mt-1">
+          <p className="text-xs sm:text-sm text-gray-400">
             Source: NYC DOE Demographic Snapshot (2013-2018)
           </p>
         </div>
-        <PieChart
-          data={demographicData}
-          title=""
-          size={500}
-        />
+        <div className="flex justify-center">
+          <PieChart
+            data={demographicData}
+            title=""
+            size={Math.min(400, window.innerWidth * 0.8)}
+          />
+        </div>
       </div>
 
     </div>

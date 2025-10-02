@@ -32,7 +32,7 @@ const DISTINCTIVE_COLORS = [
 export default function BarChart({ 
   data, 
   title, 
-  height = 550, 
+  height = 300, 
   xAxisLabel = '',
   yAxisLabel = 'Count',
   dataAlert
@@ -42,8 +42,8 @@ export default function BarChart({
   const chartRef = useRef<HTMLDivElement>(null);
   
   const maxValue = Math.max(...data.map(d => d.value));
-  const width = 900;
-  const padding = { top: 40, right: 40, bottom: 120, left: 80 };
+  const width = 700;
+  const padding = { top: 30, right: 30, bottom: 80, left: 60 };
   const chartWidth = width - padding.left - padding.right;
   const chartHeight = height - padding.top - padding.bottom;
   const barWidth = chartWidth / data.length * 0.7;
@@ -51,21 +51,22 @@ export default function BarChart({
 
   return (
     <div className="w-full relative" ref={chartRef}>
-      {title && <h3 className="text-xl font-semibold text-white mb-4">{title}</h3>}
+      {title && <h3 className="text-lg sm:text-xl font-semibold text-white mb-3 sm:mb-4">{title}</h3>}
       
       {/* Data Alert */}
       {dataAlert && (
-        <div className="mb-4 p-3 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
+        <div className="mb-3 sm:mb-4 p-3 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
           <div className="flex items-center gap-2 text-yellow-400">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
             </svg>
-            <span className="text-sm font-medium">{dataAlert}</span>
+            <span className="text-xs sm:text-sm font-medium">{dataAlert}</span>
           </div>
         </div>
       )}
       
-      <svg width="100%" height={height} viewBox={`0 0 ${width} ${height}`} className="overflow-visible">
+      <div className="w-full flex justify-center overflow-hidden">
+      <svg width="100%" height={height} viewBox={`0 0 ${width} ${height}`} className="max-w-full" preserveAspectRatio="xMidYMid meet">
         {/* Grid lines */}
         {[0, 25, 50, 75, 100].map((percent) => {
           const y = padding.top + (chartHeight * (100 - percent)) / 100;
@@ -181,14 +182,14 @@ export default function BarChart({
               {/* Label */}
               <text
                 x={x + barWidth / 2}
-                y={height - padding.bottom + 35}
+                y={height - padding.bottom + 20}
                 fill="#9ca3af"
-                fontSize="11"
+                fontSize="10"
                 fontWeight="500"
-                textAnchor="middle"
-                transform={`rotate(-45, ${x + barWidth / 2}, ${height - padding.bottom + 35})`}
+                textAnchor="end"
+                transform={`rotate(-45, ${x + barWidth / 2}, ${height - padding.bottom + 20})`}
               >
-                {item.label}
+                {item.label.length > 20 ? item.label.substring(0, 20) + '...' : item.label}
               </text>
 
               {/* Hover effect */}
@@ -282,6 +283,7 @@ export default function BarChart({
           />
         )}
       </svg>
+      </div>
       
         {/* Tooltip */}
         {hoveredIndex !== null && (

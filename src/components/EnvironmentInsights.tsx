@@ -138,6 +138,12 @@ export default function EnvironmentInsights() {
 
   return (
     <div className="space-y-6">
+      {/* Category Header */}
+      <div className="mb-6">
+        <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2">Environment Sector</h2>
+        <p className="text-gray-400 text-sm sm:text-base">Air quality, tree canopy, and environmental health metrics</p>
+      </div>
+
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2 text-sm">

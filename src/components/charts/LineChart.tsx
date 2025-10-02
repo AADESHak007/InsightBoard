@@ -23,8 +23,8 @@ export interface LineChartProps {
 export default function LineChart({
   data,
   title = '',
-  height = 450,
-  width = 900,
+  height = 220,
+  width = 500,
   color = '#3b82f6',
   xAxisLabel = '',
   yAxisLabel = '',
@@ -44,7 +44,7 @@ export default function LineChart({
     );
   }
 
-  const padding = { top: 40, right: 40, bottom: 80, left: 80 };
+  const padding = { top: 20, right: 20, bottom: 55, left: 45 };
   const chartWidth = width - padding.left - padding.right;
   const chartHeight = height - padding.top - padding.bottom;
 
@@ -122,7 +122,7 @@ export default function LineChart({
   };
 
   return (
-    <div className="relative">
+    <div className="relative w-full overflow-hidden">
       {/* Data Alert */}
       {dataAlert && (
         <div className="mb-4 p-3 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
@@ -135,11 +135,14 @@ export default function LineChart({
         </div>
       )}
 
+      <div className="w-full flex justify-center">
       <svg
         ref={svgRef}
-        width={width}
+        width="100%"
         height={height}
-        className="cursor-crosshair"
+        viewBox={`0 0 ${width} ${height}`}
+        preserveAspectRatio="xMidYMid meet"
+        className="cursor-crosshair max-w-full"
         onMouseMove={handleMouseMove}
         onMouseLeave={handleMouseLeave}
       >
@@ -266,11 +269,12 @@ export default function LineChart({
           <text
             key={index}
             x={tick.x}
-            y={height - padding.bottom + 35}
-            textAnchor="middle"
+            y={height - padding.bottom + 15}
+            textAnchor="end"
             className="text-xs fill-gray-400"
+            transform={`rotate(-45, ${tick.x}, ${height - padding.bottom + 15})`}
           >
-            {tick.value}
+            {typeof tick.value === 'string' && tick.value.length > 10 ? tick.value.substring(0, 10) : tick.value}
           </text>
         ))}
 
@@ -290,25 +294,26 @@ export default function LineChart({
         {xAxisLabel && (
           <text
             x={width / 2}
-            y={height - 10}
+            y={height - 3}
             textAnchor="middle"
-            className="text-sm fill-gray-400"
+            className="text-xs fill-gray-400"
           >
             {xAxisLabel}
           </text>
         )}
         {yAxisLabel && (
           <text
-            x={25}
+            x={20}
             y={height / 2}
             textAnchor="middle"
-            className="text-sm fill-gray-400"
-            transform={`rotate(-90, 25, ${height / 2})`}
+            className="text-xs fill-gray-400"
+            transform={`rotate(-90, 20, ${height / 2})`}
           >
             {yAxisLabel}
           </text>
         )}
       </svg>
+      </div>
 
       {/* Compact Tooltip */}
       {hoveredIndex !== null && (

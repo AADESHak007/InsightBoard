@@ -22,7 +22,7 @@ interface GroupedBarChartProps {
 export default function GroupedBarChart({ 
   data, 
   title, 
-  height = 450, 
+  height = 300, 
   color1 = '#3b82f6',
   color2 = '#ef4444',
   xAxisLabel = '',
@@ -38,8 +38,8 @@ export default function GroupedBarChart({
     ...data.flatMap(d => [d.value1, d.value2])
   );
   
-  const width = 900;
-  const padding = { top: 60, right: 60, bottom: 100, left: 80 };
+  const width = 700;
+  const padding = { top: 40, right: 30, bottom: 70, left: 60 };
   const chartWidth = width - padding.left - padding.right;
   const chartHeight = height - padding.top - padding.bottom;
   
@@ -48,20 +48,21 @@ export default function GroupedBarChart({
   const gap = groupWidth * 0.1;
 
   return (
-    <div className="w-full relative" ref={chartRef}>
+    <div className="w-full relative overflow-hidden" ref={chartRef}>
       {/* Data Alert */}
       {dataAlert && (
-        <div className="mb-4 p-3 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
+        <div className="mb-3 sm:mb-4 p-3 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
           <div className="flex items-center gap-2 text-yellow-400">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
             </svg>
-            <span className="text-sm font-medium">{dataAlert}</span>
+            <span className="text-xs sm:text-sm font-medium">{dataAlert}</span>
           </div>
         </div>
       )}
       
-      <svg width="100%" height={height} viewBox={`0 0 ${width} ${height}`} className="overflow-visible">
+      <div className="w-full flex justify-center">
+      <svg width="100%" height={height} viewBox={`0 0 ${width} ${height}`} className="max-w-full" preserveAspectRatio="xMidYMid meet">
         {/* Grid lines */}
         {[0, 25, 50, 75, 100].map((percent) => {
           const y = padding.top + (chartHeight * (100 - percent)) / 100;
@@ -238,13 +239,13 @@ export default function GroupedBarChart({
               {/* Label */}
               <text
                 x={groupX + groupWidth / 2}
-                y={height - padding.bottom + 25}
+                y={height - padding.bottom + 20}
                 fill="#9ca3af"
-                fontSize="13"
+                fontSize="11"
                 fontWeight="500"
                 textAnchor="middle"
               >
-                {item.label}
+                {item.label.length > 12 ? item.label.substring(0, 12) : item.label}
               </text>
             </g>
           );
@@ -258,14 +259,14 @@ export default function GroupedBarChart({
         )}
 
         {/* Legend */}
-        <g transform={`translate(${width / 2 - 100}, ${height - 20})`}>
-          <rect x={0} y={0} width={20} height={12} fill={color1} opacity="0.85" />
-          <text x={25} y={10} fill="#9ca3af" fontSize="12" fontWeight="500">
+        <g transform={`translate(${width / 2 - 80}, ${height - 15})`}>
+          <rect x={0} y={0} width={16} height={10} fill={color1} opacity="0.85" />
+          <text x={20} y={9} fill="#9ca3af" fontSize="10" fontWeight="500">
             {data[0]?.label1 || 'Value 1'}
           </text>
           
-          <rect x={120} y={0} width={20} height={12} fill={color2} opacity="0.85" />
-          <text x={145} y={10} fill="#9ca3af" fontSize="12" fontWeight="500">
+          <rect x={100} y={0} width={16} height={10} fill={color2} opacity="0.85" />
+          <text x={120} y={9} fill="#9ca3af" fontSize="10" fontWeight="500">
             {data[0]?.label2 || 'Value 2'}
           </text>
         </g>
@@ -273,13 +274,13 @@ export default function GroupedBarChart({
         {/* Y-Axis Label */}
         {yAxisLabel && (
           <text
-            x={20}
+            x={18}
             y={height / 2}
             fill="#9ca3af"
-            fontSize="13"
+            fontSize="11"
             fontWeight="600"
             textAnchor="middle"
-            transform={`rotate(-90, 20, ${height / 2})`}
+            transform={`rotate(-90, 18, ${height / 2})`}
           >
             {yAxisLabel}
           </text>
@@ -289,9 +290,9 @@ export default function GroupedBarChart({
         {xAxisLabel && (
           <text
             x={width / 2}
-            y={height - 35}
+            y={height - 25}
             fill="#9ca3af"
-            fontSize="13"
+            fontSize="11"
             fontWeight="600"
             textAnchor="middle"
           >
@@ -299,6 +300,7 @@ export default function GroupedBarChart({
           </text>
         )}
       </svg>
+      </div>
       
       {/* Tooltip */}
       {hoveredIndex !== null && hoveredBar && (

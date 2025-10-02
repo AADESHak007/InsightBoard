@@ -35,16 +35,16 @@ export default function ChartCard({ indicator }: ChartCardProps) {
   const areaPath = `${pathData} L ${points[points.length - 1].x} ${height - padding} L ${padding} ${height - padding} Z`;
 
   return (
-    <div className="bg-[#111827] border border-[#1f2937] rounded-lg p-5">
+    <div className="bg-[#111827] border border-[#1f2937] rounded-lg p-4 sm:p-5">
       {/* Header */}
-      <div className="mb-4">
-        <h3 className="text-lg font-semibold text-white mb-1">{indicator.title}</h3>
-        <p className="text-sm text-gray-400">{indicator.description}</p>
+      <div className="mb-3 sm:mb-4">
+        <h3 className="text-base sm:text-lg font-semibold text-white mb-1">{indicator.title}</h3>
+        <p className="text-xs sm:text-sm text-gray-400">{indicator.description}</p>
       </div>
 
       {/* Chart */}
       <div className="relative">
-        <svg width="100%" height="280" viewBox={`0 0 ${width} ${height}`} className="overflow-visible">
+        <svg width="100%" height="250" viewBox={`0 0 ${width} ${height}`} className="overflow-visible sm:h-[280px]">
           {/* Grid lines */}
           {[0, 25, 50, 75, 100].map((percent) => {
             const y = padding + (chartHeight * (100 - percent)) / 100;

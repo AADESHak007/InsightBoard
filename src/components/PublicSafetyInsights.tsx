@@ -140,6 +140,12 @@ export default function PublicSafetyInsights() {
 
   return (
     <div className="space-y-6">
+      {/* Category Header */}
+      <div className="mb-6">
+        <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2">Public Safety Sector</h2>
+        <p className="text-gray-400 text-sm sm:text-base">Crime statistics and traffic safety indicators</p>
+      </div>
+
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2 text-sm">
