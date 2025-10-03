@@ -42,7 +42,7 @@ export default function TransportationChartsView() {
             }))
             .sort((a, b) => b.value - a.value)}
           title="Taxi Trips by Borough"
-          dataAlert="Historical data from 2017 - may not reflect current patterns"
+          dataAlert="Historical data from 2017"
           xAxisLabel="Borough"
           yAxisLabel="Number of Trips"
         />
