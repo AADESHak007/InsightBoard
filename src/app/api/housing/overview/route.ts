@@ -2,8 +2,10 @@ import { NextResponse } from 'next/server';
 import {
   fetchDOBPermits,
   fetchHousingViolations,
+  fetchHousingNewYork,
   calculatePermitStats,
   calculateViolationStats,
+  calculateAffordableHousingStats,
   getYearlyPermitTrends,
   getPermitViolationCorrelation,
 } from '@/lib/api/housingData';
@@ -24,10 +26,11 @@ export async function GET() {
 
     console.log('⟳ Fetching housing data from NYC Open Data...');
     
-    // Fetch both datasets (limited for performance)
-    const [permits, violations] = await Promise.all([
+    // Fetch all datasets
+    const [permits, violations, housingNewYork] = await Promise.all([
       fetchDOBPermits(10000),
       fetchHousingViolations(10000),
+      fetchHousingNewYork(50000),
     ]);
 
     if ((!permits || permits.length === 0) && (!violations || violations.length === 0)) {
@@ -40,12 +43,14 @@ export async function GET() {
     // Calculate statistics
     const permitStats = calculatePermitStats(permits);
     const violationStats = calculateViolationStats(violations);
+    const affordableHousingStats = calculateAffordableHousingStats(housingNewYork);
     const yearlyTrends = getYearlyPermitTrends(permits);
     const correlation = getPermitViolationCorrelation(permits, violations);
 
     const response = {
       permitStats,
       violationStats,
+      affordableHousingStats,
       yearlyTrends,
       correlation,
       lastUpdated: new Date().toISOString(),

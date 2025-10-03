@@ -29,42 +29,47 @@ export default function EducationChartsView() {
     );
   }
 
-  // Calculate percentages
+  // Get latest year from data
+  const latestYear = data.yearlyTrends.length > 0 ? data.yearlyTrends[data.yearlyTrends.length - 1].year : '2023';
+  const earliestYear = data.yearlyTrends.length > 0 ? data.yearlyTrends[0].year : '2013';
+
+  // Calculate percentages using real data
   const demographicData = [
     {
       label: 'Students with Disabilities',
-      value: Math.round((data.stats.totalEnrollment * 0.201) / 1000) * 1000,
-      percentage: 20.1,
+      value: data.stats.studentsWithDisabilities,
+      percentage: data.stats.disabilitiesPercentage,
     },
     {
       label: 'English Language Learners',
-      value: Math.round((data.stats.totalEnrollment * 0.14) / 1000) * 1000,
-      percentage: 14.0,
+      value: data.stats.englishLanguageLearners,
+      percentage: data.stats.ellPercentage,
     },
     {
       label: 'Students in Poverty',
-      value: Math.round((data.stats.totalEnrollment * 0.747) / 1000) * 1000,
-      percentage: 74.7,
+      value: data.stats.studentsInPoverty,
+      percentage: data.stats.povertyPercentage,
     },
     {
-      label: 'Economic Need Index',
-      value: Math.round((data.stats.totalEnrollment * 0.74) / 1000) * 1000,
-      percentage: 74.0,
+      label: 'Students with Economic Need',
+      value: Math.round((data.stats.averageEconomicNeedIndex / 100) * data.stats.totalEnrollment),
+      percentage: data.stats.averageEconomicNeedIndex,
     },
   ];
 
   return (
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 h-[60rem]">
         {/* Student Demographics - Bar Chart */}
         <div className="bg-[#111827] border border-[#1f2937] rounded-lg p-4 h-[25rem]">
         <RechartsBarChart
           data={demographicData.map(item => ({
             name: item.label.length > 12 ? item.label.substring(0, 12) + '...' : item.label,
             value: item.value,
-            fill: '#3b82f6'
+            fill: '#3b82f6',
+            fullLabel: item.label // Full label for tooltip
           }))}
           title="Student Demographics"
-          dataAlert="Source: NYC DOE Demographic Snapshot (2013-2018)"
+          dataAlert={`Source: NYC DOE Demographic Snapshot (${earliestYear}-${latestYear})`}
           xAxisLabel="Student Categories"
           yAxisLabel="Number of Students"
         />
@@ -73,16 +78,13 @@ export default function EducationChartsView() {
         {/* Enrollment Trends - Line Chart */}
         <div className="bg-[#111827] border border-[#1f2937] rounded-lg p-4 h-[25rem]">
         <RechartsLineChart
-          data={[
-            { name: '2013', value: 1100000 },
-            { name: '2014', value: 1120000 },
-            { name: '2015', value: 1140000 },
-            { name: '2016', value: 1160000 },
-            { name: '2017', value: 1180000 },
-            { name: '2018', value: data.stats.totalEnrollment }
-          ]}
+          data={data.yearlyTrends.map(trend => ({
+            name: trend.year,
+            value: trend.enrollment,
+            fullLabel: `Year ${trend.year}: ${trend.enrollment.toLocaleString()} students`
+          }))}
           title="Enrollment Trends"
-          dataAlert="Historical enrollment data from NYC DOE"
+          dataAlert={`Historical enrollment data from NYC DOE (${earliestYear}-${latestYear})`}
           showArea={true}
           color="#10b981"
           xAxisLabel="Year"
@@ -90,39 +92,71 @@ export default function EducationChartsView() {
         />
       </div>
 
-        {/* Schools by Type - Bar Chart */}
+        {/* Students with Disabilities Trend - Line Chart */}
         <div className="bg-[#111827] border border-[#1f2937] rounded-lg p-4 h-[25rem]">
-        <RechartsBarChart
-          data={[
-            { name: 'Elementary', value: 800 },
-            { name: 'Middle', value: 400 },
-            { name: 'High School', value: 500 },
-            { name: 'Special', value: 144 }
-          ]}
-          title="Schools by Type"
-          dataAlert="Distribution of NYC public schools by level"
-          xAxisLabel="School Type"
-          yAxisLabel="Number of Schools"
+        <RechartsLineChart
+          data={data.yearlyTrends.map(trend => ({
+            name: trend.year,
+            value: trend.disabilities,
+            fullLabel: `Year ${trend.year}: ${trend.disabilities.toLocaleString()} students with disabilities`
+          }))}
+          title="Students with Disabilities Trend"
+          dataAlert={`Students with disabilities over time (${earliestYear}-${latestYear})`}
+          showArea={true}
+          color="#8b5cf6"
+          xAxisLabel="Year"
+          yAxisLabel="Number of Students"
         />
       </div>
 
-        {/* Student-Teacher Ratio - Line Chart */}
+        {/* English Language Learners Trend - Line Chart */}
         <div className="bg-[#111827] border border-[#1f2937] rounded-lg p-4 h-[25rem]">
         <RechartsLineChart
-          data={[
-            { name: '2015', value: 16.2 },
-            { name: '2016', value: 15.8 },
-            { name: '2017', value: 15.4 },
-            { name: '2018', value: 15.1 },
-            { name: '2019', value: 14.8 },
-            { name: '2020', value: Math.round((data.stats.totalEnrollment / data.stats.totalSchools) * 10) / 10 }
-          ]}
-          title="Student-Teacher Ratio Trend"
-          dataAlert="Lower ratios indicate better student attention"
-          showArea={false}
+          data={data.yearlyTrends.map(trend => ({
+            name: trend.year,
+            value: trend.ell,
+            fullLabel: `Year ${trend.year}: ${trend.ell.toLocaleString()} English Language Learners`
+          }))}
+          title="English Language Learners Trend"
+          dataAlert={`ELL students over time (${earliestYear}-${latestYear})`}
+          showArea={true}
           color="#f59e0b"
           xAxisLabel="Year"
-          yAxisLabel="Students per Teacher"
+          yAxisLabel="Number of Students"
+        />
+      </div>
+
+        {/* Students in Poverty Trend - Line Chart */}
+        <div className="bg-[#111827] border border-[#1f2937] rounded-lg p-4 h-[25rem]">
+        <RechartsLineChart
+          data={data.yearlyTrends.map(trend => ({
+            name: trend.year,
+            value: trend.poverty,
+            fullLabel: `Year ${trend.year}: ${trend.poverty.toLocaleString()} students in poverty`
+          }))}
+          title="Students in Poverty Trend"
+          dataAlert={`Students living in poverty over time (${earliestYear}-${latestYear})`}
+          showArea={true}
+          color="#ef4444"
+          xAxisLabel="Year"
+          yAxisLabel="Number of Students"
+        />
+      </div>
+
+        {/* Economic Need Index Trend - Line Chart */}
+        <div className="bg-[#111827] border border-[#1f2937] rounded-lg p-4 h-[25rem]">
+        <RechartsLineChart
+          data={data.yearlyTrends.map(trend => ({
+            name: trend.year,
+            value: Math.round(trend.economicNeedIndex * 100) / 100,
+            fullLabel: `Year ${trend.year}: Economic Need Index ${Math.round(trend.economicNeedIndex * 100) / 100}`
+          }))}
+          title="Economic Need Index Trend"
+          dataAlert={`Average economic need index over time (${earliestYear}-${latestYear})`}
+          showArea={false}
+          color="#22c55e"
+          xAxisLabel="Year"
+          yAxisLabel="Economic Need Index"
         />
       </div>
     </div>

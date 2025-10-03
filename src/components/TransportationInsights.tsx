@@ -11,7 +11,7 @@ export default function TransportationInsights() {
   if (loading) {
     return (
       <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
-        {[1, 2, 3, 4, 5, 6].map((i) => (
+        {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map((i) => (
           <div key={i} className="bg-[#111827] border border-[#1f2937] rounded-lg p-3 sm:p-4 animate-pulse">
             <div className="h-4 bg-[#1f2937] rounded w-3/4 mb-2"></div>
             <div className="h-8 bg-[#1f2937] rounded w-1/2"></div>
@@ -54,22 +54,63 @@ export default function TransportationInsights() {
     ? (data.taxiStats.avgTipAmount / data.taxiStats.avgFare) * 100
     : 0;
 
+  // Subway performance data
+  const subwayPerformance = data.subwayPerformanceStats;
+  const currentPerformance = subwayPerformance.currentYearPerformance;
+  const improvement = subwayPerformance.performanceImprovement;
+
   const indicators: Indicator[] = [
     {
       id: 'trans-1',
-      title: 'Total For-Hire Vehicles',
+      title: 'Subway On-Time Performance',
       category: 'Transportation',
-      description: 'Total TLC-licensed FHVs (Uber, Lyft, livery, etc.) registered in NYC.',
-      value: data.fhvStats.totalVehicles,
-      unit: 'vehicles',
+      description: 'Current year subway service reliability.',
+      value: Math.round(currentPerformance * 10) / 10,
+      unit: '%',
+      target: 80,
+      targetCondition: '>=',
       lastUpdate: new Date(data.lastUpdated).toISOString().split('T')[0],
-      source: 'NYC TLC',
-      color: '#f59e0b',
+      source: 'MTA',
+      trend: subwayPerformance.recentTrend === 'improving' ? 'up' : subwayPerformance.recentTrend === 'declining' ? 'down' : 'stable',
+      color: currentPerformance >= 80 ? '#10b981' : currentPerformance >= 70 ? '#f59e0b' : '#ef4444',
+      chartData: subwayPerformance.yearlyTrend.map(t => ({
+        year: parseInt(t.year),
+        value: t.onTimePerformance,
+      })),
       higherIsBetter: true,
-      explanation: 'Size of the for-hire vehicle fleet serving NYC. Larger fleet means greater transportation availability and accessibility.',
+      explanation: 'Service reliability improvements/declines. Higher percentages indicate better subway performance and more reliable public transportation for NYC residents.',
     },
+    // {
+    //   id: 'trans-2',
+    //   title: 'Subway Performance Improvement',
+    //   category: 'Transportation',
+    //   description: 'Decade-long improvement in subway reliability.',
+    //   value: Math.round(improvement * 10) / 10,
+    //   unit: '%',
+    //   target: 5,
+    //   targetCondition: '>=',
+    //   lastUpdate: new Date(data.lastUpdated).toISOString().split('T')[0],
+    //   source: 'MTA',
+    //   trend: improvement > 0 ? 'up' : improvement < 0 ? 'down' : 'stable',
+    //   color: improvement > 0 ? '#10b981' : improvement < 0 ? '#ef4444' : '#6b7280',
+    //   higherIsBetter: true,
+    //   explanation: 'Long-term trend in subway service quality. Positive values indicate improving reliability over the decade, while negative values suggest declining service performance.',
+    // },
+    // {
+    //   id: 'trans-3',
+    //   title: 'Total For-Hire Vehicles',
+    //   category: 'Transportation',
+    //   description: 'Total TLC-licensed FHVs (Uber, Lyft, livery, etc.) registered in NYC.',
+    //   value: data.fhvStats.totalVehicles,
+    //   unit: 'vehicles',
+    //   lastUpdate: new Date(data.lastUpdated).toISOString().split('T')[0],
+    //   source: 'NYC TLC',
+    //   color: '#f59e0b',
+    //   higherIsBetter: true,
+    //   explanation: 'Size of the for-hire vehicle fleet serving NYC. Larger fleet means greater transportation availability and accessibility.',
+    // },
     {
-      id: 'trans-2',
+      id: 'trans-4',
       title: 'Active FHV Fleet',
       category: 'Transportation',
       description: 'Percentage of FHV vehicles currently active and operational.',
@@ -84,24 +125,24 @@ export default function TransportationInsights() {
       higherIsBetter: true,
       explanation: 'Share of registered vehicles actively providing rides. Higher rates indicate efficient fleet utilization and service availability.',
     },
+    // {
+    //   id: 'trans-5',
+    //   title: 'Wheelchair Accessible',
+    //   category: 'Transportation',
+    //   description: 'Percentage of FHV fleet that is wheelchair accessible.',
+    //   value: Math.round(accessibilityPercent * 10) / 10,
+    //   unit: '%',
+    //   target: 20,
+    //   targetCondition: '>=',
+    //   lastUpdate: new Date(data.lastUpdated).toISOString().split('T')[0],
+    //   source: 'NYC TLC',
+    //   trend: accessibilityPercent >= 20 ? 'up' : 'down',
+    //   color: '#06b6d4',
+    //   higherIsBetter: true,
+    //   explanation: 'Vehicles equipped for wheelchair users. Higher percentages mean better accessibility and inclusion for disabled residents.',
+    // },
     {
-      id: 'trans-3',
-      title: 'Wheelchair Accessible',
-      category: 'Transportation',
-      description: 'Percentage of FHV fleet that is wheelchair accessible.',
-      value: Math.round(accessibilityPercent * 10) / 10,
-      unit: '%',
-      target: 20,
-      targetCondition: '>=',
-      lastUpdate: new Date(data.lastUpdated).toISOString().split('T')[0],
-      source: 'NYC TLC',
-      trend: accessibilityPercent >= 20 ? 'up' : 'down',
-      color: '#06b6d4',
-      higherIsBetter: true,
-      explanation: 'Vehicles equipped for wheelchair users. Higher percentages mean better accessibility and inclusion for disabled residents.',
-    },
-    {
-      id: 'trans-4',
+      id: 'trans-6',
       title: 'Yellow Taxi Trips (Sample)',
       category: 'Transportation',
       description: 'Sample of yellow taxi trips from 2017 dataset (50k records).',
@@ -114,7 +155,7 @@ export default function TransportationInsights() {
       explanation: 'Volume of taxi rides taken across NYC. Higher trip counts indicate strong demand and robust transportation network usage.',
     },
     {
-      id: 'trans-5',
+      id: 'trans-7',
       title: 'Average Trip Fare',
       category: 'Transportation',
       description: 'Average fare per yellow taxi trip (base fare only).',
@@ -126,7 +167,7 @@ export default function TransportationInsights() {
       explanation: 'Typical cost per taxi ride. This metric reflects pricing for transportation accessibility and trip economics.',
     },
     {
-      id: 'trans-6',
+      id: 'trans-8',
       title: 'Average Trip Distance',
       category: 'Transportation',
       description: 'Average distance traveled per yellow taxi trip.',
@@ -138,7 +179,7 @@ export default function TransportationInsights() {
       explanation: 'Typical length of taxi rides. Shows urban mobility patterns and how far people typically travel within the city.',
     },
     {
-      id: 'trans-7',
+      id: 'trans-9',
       title: 'Card Payment Rate',
       category: 'Transportation',
       description: 'Percentage of taxi trips paid with credit/debit card.',
@@ -154,7 +195,7 @@ export default function TransportationInsights() {
       explanation: 'Digital payment adoption rate. Higher rates indicate modernized payment systems and improved convenience for riders.',
     },
     {
-      id: 'trans-8',
+      id: 'trans-10',
       title: 'Average Tip Rate',
       category: 'Transportation',
       description: 'Average tip amount as percentage of base fare.',
@@ -170,7 +211,7 @@ export default function TransportationInsights() {
       explanation: 'How much riders tip drivers on average. Higher tips suggest good service quality and driver earnings.',
     },
     {
-      id: 'trans-9',
+      id: 'trans-11',
       title: 'Total Revenue (Sample)',
       category: 'Transportation',
       description: 'Total revenue from sampled yellow taxi trips.',
@@ -189,7 +230,7 @@ export default function TransportationInsights() {
       {/* Category Header */}
       <div className="mb-6">
         <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-white mb-2">Transportation Sector</h2>
-        <p className="text-gray-400 text-sm sm:text-base md:text-lg">Taxi operations, accessibility, and mobility metrics</p>
+        <p className="text-gray-400 text-sm sm:text-base md:text-lg">Subway performance, taxi operations, accessibility, and mobility metrics</p>
       </div>
 
       {/* Header */}
@@ -213,7 +254,7 @@ export default function TransportationInsights() {
           </svg>
           <span className="text-sm font-medium">
             <strong>Data Alert:</strong> Yellow taxi data is from 2017 historical records (sample of 50,000 trips). 
-            FHV data reflects current registered vehicles in NYC.
+            FHV data reflects current registered vehicles in NYC. Subway performance data spans 2013-2025 from MTA APIs.
           </span>
         </div>
       </div>

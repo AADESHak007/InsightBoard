@@ -2,8 +2,12 @@ import { NextResponse } from 'next/server';
 import {
   fetchFHVActive,
   fetchYellowTaxiTrips,
+  fetchMTAPerformance2013_2021,
+  fetchMTAPerformance2023_2024,
+  fetchMTAPerformance2025,
   calculateFHVStats,
   calculateTaxiStats,
+  calculateMTAPerformanceStats,
   getHourlyDemandPattern,
   getPaymentMethodBreakdown,
 } from '@/lib/api/transportationData';
@@ -24,10 +28,13 @@ export async function GET() {
 
     console.log('⟳ Fetching transportation data from NYC Open Data...');
     
-    // Fetch both datasets (limit taxi trips to 50k for performance)
-    const [fhvVehicles, taxiTrips] = await Promise.all([
+    // Fetch all datasets (limit taxi trips to 50k for performance)
+    const [fhvVehicles, taxiTrips, mtaPerformance2013_2021, mtaPerformance2023_2024, mtaPerformance2025] = await Promise.all([
       fetchFHVActive(10000),
       fetchYellowTaxiTrips(50000),
+      fetchMTAPerformance2013_2021(20000),
+      fetchMTAPerformance2023_2024(20000),
+      fetchMTAPerformance2025(10000),
     ]);
 
     if ((!fhvVehicles || fhvVehicles.length === 0) && (!taxiTrips || taxiTrips.length === 0)) {
@@ -37,17 +44,23 @@ export async function GET() {
       );
     }
 
-    console.log(`✓ Fetched ${fhvVehicles.length} FHV vehicles and ${taxiTrips.length} taxi trips`);
+    console.log(`✓ Fetched ${fhvVehicles.length} FHV vehicles, ${taxiTrips.length} taxi trips, and MTA performance data`);
 
     // Calculate statistics
     const fhvStats = calculateFHVStats(fhvVehicles);
     const taxiStats = calculateTaxiStats(taxiTrips);
+    const subwayPerformanceStats = calculateMTAPerformanceStats(
+      mtaPerformance2013_2021,
+      mtaPerformance2023_2024,
+      mtaPerformance2025
+    );
     const hourlyDemand = getHourlyDemandPattern(taxiTrips);
     const paymentMethods = getPaymentMethodBreakdown(taxiTrips);
 
     const response = {
       fhvStats,
       taxiStats,
+      subwayPerformanceStats,
       hourlyDemand,
       paymentMethods,
       lastUpdated: new Date().toISOString(),

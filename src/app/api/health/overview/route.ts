@@ -2,8 +2,10 @@ import { NextResponse } from 'next/server';
 import {
   fetchRestaurantInspections,
   fetchLeadingCausesOfDeath,
+  fetchSafetyEvents,
   calculateRestaurantStats,
   calculateMortalityStats,
+  calculateSafetyEventsStats,
 } from '@/lib/api/healthData';
 import { memoryCache } from '@/lib/cache/memoryCache';
 
@@ -22,10 +24,11 @@ export async function GET() {
 
     console.log('⟳ Fetching health data from NYC Open Data...');
     
-    // Fetch both datasets
-    const [inspections, deathRecords] = await Promise.all([
+    // Fetch all datasets
+    const [inspections, deathRecords, safetyEvents] = await Promise.all([
       fetchRestaurantInspections(10000),
       fetchLeadingCausesOfDeath(10000),
+      fetchSafetyEvents(50000),
     ]);
 
     if ((!inspections || inspections.length === 0) && (!deathRecords || deathRecords.length === 0)) {
@@ -38,10 +41,12 @@ export async function GET() {
     // Calculate statistics
     const restaurantStats = calculateRestaurantStats(inspections);
     const mortalityStats = calculateMortalityStats(deathRecords);
+    const safetyEventsStats = calculateSafetyEventsStats(safetyEvents);
 
     const response = {
       restaurantStats,
       mortalityStats,
+      safetyEventsStats,
       lastUpdated: new Date().toISOString(),
     };
 

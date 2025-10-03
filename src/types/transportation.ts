@@ -25,6 +25,18 @@ export interface TransportationDataResponse {
     mediumTrips: number;
     longTrips: number;
   };
+  subwayPerformanceStats: {
+    yearlyTrend: Array<{ year: string; onTimePerformance: number; totalTrips: number; onTimeTrips: number }>;
+    currentYearPerformance: number;
+    bestYear: { year: string; performance: number };
+    worstYear: { year: string; performance: number };
+    performanceImprovement: number;
+    averagePerformance: number;
+    performanceByDivision: Array<{ division: string; performance: number; totalTrips: number }>;
+    performanceByLine: Array<{ line: string; performance: number; totalTrips: number }>;
+    peakPerformanceYear: { year: string; performance: number };
+    recentTrend: 'improving' | 'declining' | 'stable';
+  };
   hourlyDemand: Array<{
     hour: number;
     trips: number;

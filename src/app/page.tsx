@@ -50,7 +50,7 @@ export default function Home() {
       
       <main className="flex-1 lg:ml-64 p-3 sm:p-4 md:p-6 overflow-auto">
         {/* Header */}
-        <div className="mb-4 sm:mb-6">
+        <div className="mb-4 sm:mb-6 pl-16 lg:pl-0">
           <h1 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-white mb-1">
             NYC Insights Dashboard
           </h1>

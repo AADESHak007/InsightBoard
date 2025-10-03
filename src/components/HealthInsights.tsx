@@ -43,9 +43,64 @@ export default function HealthInsights() {
   const totalGraded = data.restaurantStats.gradeA + data.restaurantStats.gradeB + data.restaurantStats.gradeC;
   const gradeAPercent = totalGraded > 0 ? (data.restaurantStats.gradeA / totalGraded) * 100 : 0;
 
+  // Safety events data
+  const currentYearEvents = data.safetyEventsStats.outreachExpansion.currentYear;
+  const previousYearEvents = data.safetyEventsStats.outreachExpansion.previousYear;
+  const growthPercent = data.safetyEventsStats.outreachExpansion.growthPercent;
+  const topProgram = data.safetyEventsStats.topPrograms[0];
+
   const indicators: Indicator[] = [
     {
       id: 'health-1',
+      title: 'Total Safety Events (Current Year)',
+      category: 'Health',
+      description: 'Total safety outreach events conducted this year.',
+      value: currentYearEvents,
+      unit: 'events',
+      target: previousYearEvents,
+      targetCondition: '>=',
+      lastUpdate: new Date(data.lastUpdated).toISOString().split('T')[0],
+      source: 'NYC Safety Events',
+      trend: growthPercent > 0 ? 'up' : 'stable',
+      color: '#10b981',
+      chartData: data.safetyEventsStats.eventsByYear.map(y => ({
+        year: parseInt(y.year),
+        value: y.totalEvents,
+      })),
+      higherIsBetter: true,
+      explanation: 'Show if outreach efforts are expanding or shrinking across administrations. More events indicate increased public safety engagement and community outreach programs.',
+    },
+    // {
+    //   id: 'health-2',
+    //   title: 'Safety Events Growth',
+    //   category: 'Health',
+    //   description: 'Year-over-year growth in safety outreach events.',
+    //   value: Math.round(growthPercent * 10) / 10,
+    //   unit: '%',
+    //   target: 5,
+    //   targetCondition: '>=',
+    //   lastUpdate: new Date(data.lastUpdated).toISOString().split('T')[0],
+    //   source: 'NYC Safety Events',
+    //   trend: growthPercent >= 5 ? 'up' : 'stable',
+    //   color: '#8b5cf6',
+    //   higherIsBetter: true,
+    //   explanation: 'Growth in safety outreach programs indicates expanding public safety initiatives and increased community engagement efforts.',
+    // },
+    {
+      id: 'health-3',
+      title: 'Top Safety Program',
+      category: 'Health',
+      description: topProgram ? `Most active program: ${topProgram.program}` : 'Top safety program',
+      value: topProgram ? topProgram.count : 0,
+      unit: 'events',
+      lastUpdate: new Date(data.lastUpdated).toISOString().split('T')[0],
+      source: 'NYC Safety Events',
+      color: '#f59e0b',
+      higherIsBetter: true,
+      explanation: 'Most frequently conducted safety program type, highlighting the city\'s primary focus areas for public safety outreach and education.',
+    },
+    {
+      id: 'health-4',
       title: 'Restaurant Inspections',
       category: 'Health',
       description: 'Total restaurant inspections conducted (last 10,000 records).',
@@ -58,7 +113,7 @@ export default function HealthInsights() {
       explanation: 'Number of food safety inspections performed. More inspections mean better oversight and protection of public health.',
     },
     {
-      id: 'health-2',
+      id: 'health-5',
       title: 'Grade A Restaurants',
       category: 'Health',
       description: 'Percentage of restaurants with Grade A food safety rating.',
@@ -69,12 +124,12 @@ export default function HealthInsights() {
       lastUpdate: new Date(data.lastUpdated).toISOString().split('T')[0],
       source: 'NYC DOHMH',
       trend: gradeAPercent >= 80 ? 'up' : 'stable',
-      color: '#10b981',
+      color: '#22c55e',
       higherIsBetter: true,
       explanation: 'Restaurants meeting highest sanitation standards. Higher rates indicate better food safety practices and reduced risk of foodborne illness.',
     },
     {
-      id: 'health-3',
+      id: 'health-6',
       title: 'Critical Violations',
       category: 'Health',
       description: 'Food safety violations requiring immediate attention.',
@@ -89,40 +144,40 @@ export default function HealthInsights() {
       higherIsBetter: false,
       explanation: 'Serious health hazards found during inspections. Lower numbers mean safer food handling and reduced public health risks.',
     },
+    // {
+    //   id: 'health-7',
+    //   title: 'Leading Cause of Death',
+    //   category: 'Health',
+    //   description: data.mortalityStats.topCauses.length > 0
+    //     ? `Top mortality cause: ${data.mortalityStats.topCauses[0].cause.substring(0, 30)}...`
+    //     : 'Top mortality cause data',
+    //   value: data.mortalityStats.topCauses.length > 0 ? data.mortalityStats.topCauses[0].deaths : 0,
+    //   unit: 'deaths',
+    //   lastUpdate: new Date(data.lastUpdated).toISOString().split('T')[0],
+    //   source: 'NYC DOHMH',
+    //   color: '#ec4899',
+    //   higherIsBetter: false,
+    //   explanation: 'Most common cause of mortality in NYC. Lower death counts indicate improving public health outcomes and effective interventions.',
+    // },
+    // {
+    //   id: 'health-8',
+    //   title: 'Total Mortality (Recent)',
+    //   category: 'Health',
+    //   description: 'Total deaths tracked in recent records (last 10,000).',
+    //   value: data.mortalityStats.totalDeaths,
+    //   unit: 'deaths',
+    //   lastUpdate: new Date(data.lastUpdated).toISOString().split('T')[0],
+    //   source: 'NYC DOHMH',
+    //   color: '#8b5cf6',
+    //   chartData: data.mortalityStats.deathsByYear.slice(-7).map(y => ({
+    //     year: parseInt(y.year),
+    //     value: y.deaths,
+    //   })),
+    //   higherIsBetter: false,
+    //   explanation: 'Overall mortality count from recent vital statistics. Tracking trends helps identify public health challenges and measure population health.',
+    // },
     {
-      id: 'health-4',
-      title: 'Leading Cause of Death',
-      category: 'Health',
-      description: data.mortalityStats.topCauses.length > 0
-        ? `Top mortality cause: ${data.mortalityStats.topCauses[0].cause.substring(0, 30)}...`
-        : 'Top mortality cause data',
-      value: data.mortalityStats.topCauses.length > 0 ? data.mortalityStats.topCauses[0].deaths : 0,
-      unit: 'deaths',
-      lastUpdate: new Date(data.lastUpdated).toISOString().split('T')[0],
-      source: 'NYC DOHMH',
-      color: '#ec4899',
-      higherIsBetter: false,
-      explanation: 'Most common cause of mortality in NYC. Lower death counts indicate improving public health outcomes and effective interventions.',
-    },
-    {
-      id: 'health-5',
-      title: 'Total Mortality (Recent)',
-      category: 'Health',
-      description: 'Total deaths tracked in recent records (last 10,000).',
-      value: data.mortalityStats.totalDeaths,
-      unit: 'deaths',
-      lastUpdate: new Date(data.lastUpdated).toISOString().split('T')[0],
-      source: 'NYC DOHMH',
-      color: '#8b5cf6',
-      chartData: data.mortalityStats.deathsByYear.slice(-7).map(y => ({
-        year: parseInt(y.year),
-        value: y.deaths,
-      })),
-      higherIsBetter: false,
-      explanation: 'Overall mortality count from recent vital statistics. Tracking trends helps identify public health challenges and measure population health.',
-    },
-    {
-      id: 'health-6',
+      id: 'health-9',
       title: 'Grade B & C Restaurants',
       category: 'Health',
       description: 'Restaurants requiring food safety improvements.',

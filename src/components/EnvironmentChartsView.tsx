@@ -30,7 +30,7 @@ export default function EnvironmentChartsView() {
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 h-[40rem]">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 h-[80rem]">
       {/* Tree Health by Borough - Bar Chart */}
         <div className="bg-[#111827] border border-[#1f2937] rounded-lg p-4 h-[25rem]">
         <RechartsBarChart
@@ -88,19 +88,76 @@ export default function EnvironmentChartsView() {
       {/* Air Quality Trends - Line Chart */}
         <div className="bg-[#111827] border border-[#1f2937] rounded-lg p-4 h-[25rem]">
         <RechartsLineChart
-          data={[
-            { name: '2019', value: 42 },
-            { name: '2020', value: 38 },
-            { name: '2021', value: 35 },
-            { name: '2022', value: 32 },
-            { name: '2023', value: 28 }
-          ]}
-          title="Air Quality Improvement"
+          data={data.pm25YearlyTrend.map(item => ({
+            name: item.year,
+            value: Math.round(item.pm25 * 10) / 10
+          }))}
+          title="Air Quality Improvement (PM2.5)"
           dataAlert="Annual average PM2.5 levels (μg/m³) - lower is better"
-          showArea={false}
+          showArea={true}
           color="#84cc16"
           xAxisLabel="Year"
           yAxisLabel="PM2.5 Level (μg/m³)"
+        />
+      </div>
+
+      {/* GHG Emissions Trends - Line Chart */}
+        <div className="bg-[#111827] border border-[#1f2937] rounded-lg p-4 h-[25rem]">
+        <RechartsLineChart
+          data={data.ghgEmissionsStats.yearlyTrend.map(item => ({
+            name: item.year,
+            value: item.emissions
+          }))}
+          title="Greenhouse Gas Emissions Reduction"
+          dataAlert="Citywide CO2e emissions (thousands of tons) - showing climate action progress"
+          showArea={true}
+          color="#06b6d4"
+          xAxisLabel="Year"
+          yAxisLabel="Emissions (1,000 tons CO2e)"
+        />
+      </div>
+
+      {/* GHG Emissions Reduction - Bar Chart */}
+        <div className="bg-[#111827] border border-[#1f2937] rounded-lg p-4 h-[25rem]">
+        <RechartsBarChart
+          data={[
+            { name: '2005', value: data.ghgEmissionsStats.totalEmissions2005 },
+            { name: '2023', value: data.ghgEmissionsStats.totalEmissions2023 }
+          ]}
+          title="GHG Emissions: 2005 vs 2023"
+          dataAlert={`${data.ghgEmissionsStats.reductionPercent}% reduction achieved through climate policies`}
+          xAxisLabel="Year"
+          yAxisLabel="Emissions (1,000 tons CO2e)"
+        />
+      </div>
+
+      {/* Recycling Diversion Rate - Line Chart */}
+        <div className="bg-[#111827] border border-[#1f2937] rounded-lg p-4 h-[25rem]">
+        <RechartsLineChart
+          data={data.recyclingDiversionStats.yearlyTrend.map(item => ({
+            name: item.year,
+            value: Math.round(item.diversionRate * 10) / 10
+          }))}
+          title="Recycling Diversion Rate"
+          dataAlert="Percentage of waste diverted from landfills through recycling and composting"
+          showArea={true}
+          color="#10b981"
+          xAxisLabel="Year"
+          yAxisLabel="Diversion Rate (%)"
+        />
+      </div>
+
+      {/* Waste Collection Trends - Bar Chart */}
+        <div className="bg-[#111827] border border-[#1f2937] rounded-lg p-4 h-[25rem]">
+        <RechartsBarChart
+          data={[
+            { name: '2012', value: data.recyclingDiversionStats.yearlyTrend.find(d => d.year === '2012')?.diversionRate || 0 },
+            { name: data.recyclingDiversionStats.yearlyTrend[data.recyclingDiversionStats.yearlyTrend.length - 1]?.year || 'Latest', value: data.recyclingDiversionStats.currentDiversionRate }
+          ]}
+          title={`Recycling Progress: 2012 vs ${data.recyclingDiversionStats.yearlyTrend[data.recyclingDiversionStats.yearlyTrend.length - 1]?.year || 'Latest'}`}
+          dataAlert={`${data.recyclingDiversionStats.improvementPercent}% improvement in diversion rate`}
+          xAxisLabel="Year"
+          yAxisLabel="Diversion Rate (%)"
         />
       </div>
     </div>

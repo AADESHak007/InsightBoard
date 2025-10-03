@@ -38,7 +38,7 @@ export default function HousingChartsView() {
   ];
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 h-[40rem]">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 h-[60rem]">
       {/* Construction Permits by Borough - Bar Chart */}
         <div className="bg-[#111827] border border-[#1f2937] rounded-lg p-4 h-[25rem]">
         <RechartsBarChart
@@ -96,15 +96,46 @@ export default function HousingChartsView() {
             { name: '2019', value: 65 },
             { name: '2020', value: 68 },
             { name: '2021', value: 72 },
-            { name: '2022', value: 75 },
-            { name: '2023', value: Math.round((data.violationStats.closedViolations / data.violationStats.totalViolations) * 100 * 10) / 10 }
+            { name: '2022', value: 75 }
           ]}
           title="Violation Resolution Rate"
-          dataAlert="Percentage of housing violations successfully resolved"
+          dataAlert="Percentage of housing violations successfully resolved (historical data through 2022)"
           showArea={false}
           color="#ef4444"
           xAxisLabel="Year"
           yAxisLabel="Resolution Rate (%)"
+        />
+      </div>
+
+      {/* Affordable Housing Units Created/Preserved - Line Chart */}
+        <div className="bg-[#111827] border border-[#1f2937] rounded-lg p-4 h-[25rem]">
+        <RechartsLineChart
+          data={data.affordableHousingStats.yearlyTrend.map(item => ({
+            name: item.year,
+            value: item.affordableUnits
+          }))}
+          title="Affordable Housing Units Created/Preserved"
+          dataAlert="Track number of affordable units delivered per year"
+          showArea={true}
+          color="#10b981"
+          xAxisLabel="Year"
+          yAxisLabel="Affordable Units"
+        />
+      </div>
+
+      {/* Cumulative Affordable Housing - Line Chart */}
+        <div className="bg-[#111827] border border-[#1f2937] rounded-lg p-4 h-[25rem]">
+        <RechartsLineChart
+          data={data.affordableHousingStats.yearlyTrend.map(item => ({
+            name: item.year,
+            value: item.cumulativeUnits
+          }))}
+          title="Cumulative Affordable Housing Units"
+          dataAlert="Total affordable units created/preserved since 2016"
+          showArea={true}
+          color="#22c55e"
+          xAxisLabel="Year"
+          yAxisLabel="Cumulative Units"
         />
       </div>
     </div>

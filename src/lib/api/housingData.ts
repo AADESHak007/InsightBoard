@@ -6,6 +6,9 @@ const DOB_PERMITS_ENDPOINT = 'ipu4-2q9a.json';
 // Housing Maintenance Code Violations endpoint
 const HOUSING_VIOLATIONS_ENDPOINT = 'wvxf-dwi5.json';
 
+// Housing New York Units by Building endpoint
+const HOUSING_NEW_YORK_ENDPOINT = 'hq68-rnsi.json';
+
 export interface DOBPermit {
   borough?: string;
   bin__?: string;
@@ -57,6 +60,48 @@ export interface ViolationStats {
   violationsByBorough: Record<string, number>;
 }
 
+export interface HousingNewYorkRecord {
+  project_id?: string;
+  project_name?: string;
+  program_group?: string;
+  project_start_date?: string;
+  project_completion_date?: string;
+  extended_affordability_status?: string;
+  prevailing_wage_status?: string;
+  planned_tax_benefit?: string;
+  extremely_low_income_units?: string;
+  very_low_income?: string;
+  low_income_units?: string;
+  moderate_income?: string;
+  middle_income?: string;
+  other?: string;
+  counted_rental_units?: string;
+  counted_homeownership_units?: string;
+  all_counted_units?: string;
+  total_units?: string;
+  senior_units?: string;
+  [key: string]: string | undefined;
+}
+
+export interface AffordableHousingStats {
+  totalAffordableUnits: number;
+  totalProjects: number;
+  unitsByIncomeLevel: {
+    extremelyLow: number;
+    veryLow: number;
+    low: number;
+    moderate: number;
+    middle: number;
+  };
+  yearlyTrend: Array<{
+    year: string;
+    affordableUnits: number;
+    projectsCompleted: number;
+    cumulativeUnits: number;
+  }>;
+  programGroupBreakdown: Record<string, number>;
+}
+
 /**
  * Fetch DOB permits (limited to recent data for performance)
  */
@@ -85,6 +130,22 @@ export async function fetchHousingViolations(limit: number = 10000): Promise<Hou
     return data;
   } catch (error) {
     console.error('Error fetching housing violations:', error);
+    return [];
+  }
+}
+
+/**
+ * Fetch Housing New York units data
+ */
+export async function fetchHousingNewYork(limit: number = 50000): Promise<HousingNewYorkRecord[]> {
+  try {
+    const data = await sodaClient.query<HousingNewYorkRecord>(
+      HOUSING_NEW_YORK_ENDPOINT,
+      `$limit=${limit}&$order=project_completion_date DESC`
+    );
+    return data;
+  } catch (error) {
+    console.error('Error fetching Housing New York data:', error);
     return [];
   }
 }
@@ -223,5 +284,89 @@ export function getPermitViolationCorrelation(
     })
     .filter(b => b.borough !== 'UNKNOWN')
     .sort((a, b) => b.permits - a.permits);
+}
+
+/**
+ * Calculate affordable housing statistics
+ */
+export function calculateAffordableHousingStats(records: HousingNewYorkRecord[]): AffordableHousingStats {
+  const yearlyData: Record<string, { affordableUnits: number; projectsCompleted: number }> = {};
+  const programGroupData: Record<string, number> = {};
+  
+  let totalAffordableUnits = 0;
+  let totalProjects = 0;
+  let cumulativeUnits = 0;
+  
+  const unitsByIncomeLevel = {
+    extremelyLow: 0,
+    veryLow: 0,
+    low: 0,
+    moderate: 0,
+    middle: 0,
+  };
+
+  records.forEach(record => {
+    // Only count completed projects (those with completion dates)
+    if (!record.project_completion_date) return;
+
+    const completionDate = new Date(record.project_completion_date);
+    const year = completionDate.getFullYear().toString();
+    
+    // Only include years from 2016 onwards
+    if (completionDate.getFullYear() < 2016) return;
+
+    // Parse unit counts
+    const extremelyLow = parseInt(record.extremely_low_income_units || '0');
+    const veryLow = parseInt(record.very_low_income || '0');
+    const low = parseInt(record.low_income_units || '0');
+    const moderate = parseInt(record.moderate_income || '0');
+    const middle = parseInt(record.middle_income || '0');
+    
+    const totalAffordable = extremelyLow + veryLow + low + moderate + middle;
+    
+    if (totalAffordable === 0) return; // Skip projects with no affordable units
+
+    // Count by income level
+    unitsByIncomeLevel.extremelyLow += extremelyLow;
+    unitsByIncomeLevel.veryLow += veryLow;
+    unitsByIncomeLevel.low += low;
+    unitsByIncomeLevel.moderate += moderate;
+    unitsByIncomeLevel.middle += middle;
+
+    // Count by year
+    if (!yearlyData[year]) {
+      yearlyData[year] = { affordableUnits: 0, projectsCompleted: 0 };
+    }
+    yearlyData[year].affordableUnits += totalAffordable;
+    yearlyData[year].projectsCompleted += 1;
+
+    // Count by program group
+    const programGroup = record.program_group || 'Other';
+    programGroupData[programGroup] = (programGroupData[programGroup] || 0) + totalAffordable;
+
+    totalAffordableUnits += totalAffordable;
+    totalProjects += 1;
+  });
+
+  // Create yearly trend with cumulative totals
+  const yearlyTrend = Object.entries(yearlyData)
+    .map(([year, data]) => {
+      cumulativeUnits += data.affordableUnits;
+      return {
+        year,
+        affordableUnits: data.affordableUnits,
+        projectsCompleted: data.projectsCompleted,
+        cumulativeUnits,
+      };
+    })
+    .sort((a, b) => a.year.localeCompare(b.year));
+
+  return {
+    totalAffordableUnits,
+    totalProjects,
+    unitsByIncomeLevel,
+    yearlyTrend,
+    programGroupBreakdown: programGroupData,
+  };
 }
 

@@ -15,6 +15,24 @@ export interface HousingDataResponse {
     classC: number;
     violationsByBorough: Record<string, number>;
   };
+  affordableHousingStats: {
+    totalAffordableUnits: number;
+    totalProjects: number;
+    unitsByIncomeLevel: {
+      extremelyLow: number;
+      veryLow: number;
+      low: number;
+      moderate: number;
+      middle: number;
+    };
+    yearlyTrend: Array<{
+      year: string;
+      affordableUnits: number;
+      projectsCompleted: number;
+      cumulativeUnits: number;
+    }>;
+    programGroupBreakdown: Record<string, number>;
+  };
   yearlyTrends: Array<{
     year: number;
     permits: number;

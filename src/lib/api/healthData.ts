@@ -6,6 +6,9 @@ const RESTAURANT_INSPECTIONS_ENDPOINT = '43nn-pn8j.json';
 // Leading Causes of Death endpoint
 const LEADING_CAUSES_DEATH_ENDPOINT = 'jb7j-dtam.json';
 
+// NYC Safety Events endpoint
+const SAFETY_EVENTS_ENDPOINT = '3vyj-dkjt.json';
+
 export interface RestaurantInspection {
   camis?: string;
   dba?: string;
@@ -50,6 +53,53 @@ export interface MortalityStats {
   demographicBreakdown: Array<{ demographic: string; deaths: number; percentage: number }>;
 }
 
+export interface SafetyEvent {
+  name_of_org?: string;
+  program?: string;
+  address?: string;
+  borough?: string;
+  zip_code?: string;
+  served_by?: string;
+  event_date?: string;
+  citywide_outreach?: string;
+  agedisp?: string;
+  head_start_prek?: string;
+  hospital_health_care?: string;
+  seniors?: string;
+  community_site?: string;
+  handsondisp1?: string;
+  latitude?: string;
+  longitude?: string;
+  community_board?: string;
+  council_district?: string;
+  [key: string]: string | undefined;
+}
+
+export interface SafetyEventsStats {
+  totalEvents: number;
+  eventsByYear: Array<{
+    year: string;
+    totalEvents: number;
+    programs: Record<string, number>;
+  }>;
+  programsByYear: Array<{
+    year: string;
+    program: string;
+    count: number;
+  }>;
+  topPrograms: Array<{
+    program: string;
+    count: number;
+    percentage: number;
+  }>;
+  eventsByBorough: Record<string, number>;
+  outreachExpansion: {
+    currentYear: number;
+    previousYear: number;
+    growthPercent: number;
+  };
+}
+
 /**
  * Fetch restaurant inspections
  */
@@ -78,6 +128,22 @@ export async function fetchLeadingCausesOfDeath(limit: number = 10000): Promise<
     return data;
   } catch (error) {
     console.error('Error fetching death data:', error);
+    return [];
+  }
+}
+
+/**
+ * Fetch safety events data
+ */
+export async function fetchSafetyEvents(limit: number = 50000): Promise<SafetyEvent[]> {
+  try {
+    const data = await sodaClient.query<SafetyEvent>(
+      SAFETY_EVENTS_ENDPOINT,
+      `$limit=${limit}&$order=event_date DESC`
+    );
+    return data;
+  } catch (error) {
+    console.error('Error fetching safety events:', error);
     return [];
   }
 }
@@ -196,6 +262,109 @@ export function calculateMortalityStats(deathRecords: DeathRecord[]): MortalityS
     topCauses,
     deathsByYear,
     demographicBreakdown,
+  };
+}
+
+/**
+ * Calculate safety events statistics
+ */
+export function calculateSafetyEventsStats(events: SafetyEvent[]): SafetyEventsStats {
+  const yearData: Record<string, { totalEvents: number; programs: Record<string, number> }> = {};
+  const programData: Record<string, number> = {};
+  const boroughData: Record<string, number> = {};
+  
+  let totalEvents = 0;
+
+  events.forEach(event => {
+    // Only process events from 2014 onwards (past decade)
+    if (!event.event_date) return;
+    
+    const eventDate = new Date(event.event_date);
+    const year = eventDate.getFullYear().toString();
+    
+    if (eventDate.getFullYear() < 2014) return;
+
+    const program = event.program || 'Unknown';
+    const borough = event.borough || 'Unknown';
+
+    // Count by year
+    if (!yearData[year]) {
+      yearData[year] = { totalEvents: 0, programs: {} };
+    }
+    yearData[year].totalEvents++;
+    yearData[year].programs[program] = (yearData[year].programs[program] || 0) + 1;
+
+    // Count by program
+    programData[program] = (programData[program] || 0) + 1;
+
+    // Count by borough
+    boroughData[borough] = (boroughData[borough] || 0) + 1;
+
+    totalEvents++;
+  });
+
+  // Create events by year
+  const eventsByYear = Object.entries(yearData)
+    .map(([year, data]) => ({
+      year,
+      totalEvents: data.totalEvents,
+      programs: data.programs,
+    }))
+    .sort((a, b) => a.year.localeCompare(b.year));
+
+  // Create programs by year for trend analysis
+  const programsByYear: Array<{ year: string; program: string; count: number }> = [];
+  Object.entries(yearData).forEach(([year, data]) => {
+    Object.entries(data.programs).forEach(([program, count]) => {
+      programsByYear.push({ year, program, count });
+    });
+  });
+
+  // Top programs
+  const topPrograms = Object.entries(programData)
+    .map(([program, count]) => ({
+      program,
+      count,
+      percentage: (count / totalEvents) * 100,
+    }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 10);
+
+  // Calculate outreach expansion (current year vs previous year)
+  // Use the most recent complete year vs the year before that
+  const currentYear = eventsByYear[eventsByYear.length - 1];
+  const previousYear = eventsByYear[eventsByYear.length - 2];
+  
+  // If current year has very few events (likely incomplete data), use previous year as current
+  const isCurrentYearIncomplete = currentYear && currentYear.totalEvents < (previousYear?.totalEvents || 0) * 0.3;
+  const effectiveCurrentYear = isCurrentYearIncomplete ? previousYear : currentYear;
+  const effectivePreviousYear = isCurrentYearIncomplete ? eventsByYear[eventsByYear.length - 3] : previousYear;
+  
+  // Debug logging
+  console.log('Safety Events Year-over-Year Analysis:', {
+    allYears: eventsByYear.map(y => ({ year: y.year, events: y.totalEvents })),
+    currentYear: currentYear ? { year: currentYear.year, events: currentYear.totalEvents } : null,
+    previousYear: previousYear ? { year: previousYear.year, events: previousYear.totalEvents } : null,
+    isCurrentYearIncomplete,
+    effectiveCurrentYear: effectiveCurrentYear ? { year: effectiveCurrentYear.year, events: effectiveCurrentYear.totalEvents } : null,
+    effectivePreviousYear: effectivePreviousYear ? { year: effectivePreviousYear.year, events: effectivePreviousYear.totalEvents } : null,
+  });
+  
+  const outreachExpansion = {
+    currentYear: effectiveCurrentYear?.totalEvents || 0,
+    previousYear: effectivePreviousYear?.totalEvents || 0,
+    growthPercent: effectivePreviousYear && effectivePreviousYear.totalEvents > 0 
+      ? ((effectiveCurrentYear?.totalEvents || 0) - effectivePreviousYear.totalEvents) / effectivePreviousYear.totalEvents * 100
+      : 0,
+  };
+
+  return {
+    totalEvents,
+    eventsByYear,
+    programsByYear,
+    topPrograms,
+    eventsByBorough: boroughData,
+    outreachExpansion,
   };
 }
 

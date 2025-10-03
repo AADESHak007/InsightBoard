@@ -105,6 +105,11 @@ export default function AllInsights() {
 
   // Education Indicators
   if (education.data) {
+    const latestYearData = education.data.yearlyTrends[education.data.yearlyTrends.length - 1];
+    const enrollmentGrowth = education.data.yearlyTrends.length > 1 
+      ? ((latestYearData.enrollment - education.data.yearlyTrends[0].enrollment) / education.data.yearlyTrends[0].enrollment) * 100
+      : 0;
+    
     indicators.push(
       {
         id: 'all-education-1',
@@ -121,27 +126,75 @@ export default function AllInsights() {
       },
       {
         id: 'all-education-2',
-        title: 'Student-Teacher Ratio',
+        title: 'Students with Disabilities',
         category: 'Education',
-        description: 'Average students per teacher across NYC schools.',
-        value: Math.round((education.data.stats.totalEnrollment / education.data.stats.totalSchools) * 10) / 10,
-        unit: 'ratio',
-        target: 15,
+        description: 'Percentage of students requiring special education services.',
+        value: Math.round(education.data.stats.disabilitiesPercentage * 10) / 10,
+        unit: '%',
+        target: 20,
         targetCondition: '<=',
         lastUpdate: new Date(education.data.lastUpdated).toISOString().split('T')[0],
         source: 'NYC DOE',
-        color: '#8b5cf6',
+        trend: 'stable',
+        color: '#ec4899',
+        higherIsBetter: true,
+        explanation: 'Share of students receiving special education services. This metric tracks accessibility and support for students with diverse learning needs.',
+      },
+      {
+        id: 'all-education-3',
+        title: 'Economic Need Index',
+        category: 'Education',
+        description: 'Average Economic Need Index across all schools (higher = more need).',
+        value: Math.round(education.data.stats.averageEconomicNeedIndex * 10) / 10,
+        unit: '%',
+        target: 70,
+        targetCondition: '<=',
+        lastUpdate: new Date(education.data.lastUpdated).toISOString().split('T')[0],
+        source: 'NYC DOE',
+        trend: 'stable',
+        color: '#f59e0b',
         higherIsBetter: false,
-        explanation: 'Lower ratios indicate better teacher-student interaction and personalized attention, improving educational outcomes.',
+        explanation: 'Composite measure of student economic disadvantage. Lower index means less poverty, better housing stability, and improved family economic security.',
+      },
+      {
+        id: 'all-education-4',
+        title: 'Enrollment Growth',
+        category: 'Education',
+        description: 'Percentage change in student enrollment over time.',
+        value: Math.round(enrollmentGrowth * 10) / 10,
+        unit: '%',
+        lastUpdate: new Date(education.data.lastUpdated).toISOString().split('T')[0],
+        source: 'NYC DOE',
+        trend: enrollmentGrowth > 0 ? 'up' : 'stable',
+        color: '#10b981',
+        higherIsBetter: true,
+        explanation: 'Growth in student enrollment indicates population growth, increased school access, and confidence in public education system.',
       }
     );
   }
 
   // Housing Indicators
   if (housing.data) {
+    const latestYearData = housing.data.affordableHousingStats.yearlyTrend[housing.data.affordableHousingStats.yearlyTrend.length - 1];
+    
     indicators.push(
       {
         id: 'all-housing-1',
+        title: 'Affordable Housing Units Created/Preserved',
+        category: 'Housing',
+        description: 'Track number of affordable units delivered per year - Mayor\'s housing promise vs. delivery.',
+        value: latestYearData ? latestYearData.affordableUnits : 0,
+        unit: 'units',
+        target: 20000,
+        targetCondition: '>=',
+        lastUpdate: new Date(housing.data.lastUpdated).toISOString().split('T')[0],
+        source: 'NYC HPD',
+        color: '#10b981',
+        higherIsBetter: true,
+        explanation: 'Mayor\'s housing promise vs. delivery. NYC has created/preserved affordable housing units through various programs, demonstrating commitment to housing affordability and addressing the city\'s housing crisis.',
+      },
+      {
+        id: 'all-housing-2',
         title: 'Building Permits (2024)',
         category: 'Housing',
         description: 'Total new building permits issued in NYC.',
@@ -154,7 +207,7 @@ export default function AllInsights() {
         explanation: 'Indicates new construction activity and housing development, reflecting real estate growth and urban expansion.',
       },
       {
-        id: 'all-housing-2',
+        id: 'all-housing-3',
         title: 'Open Violations',
         category: 'Housing',
         description: 'Housing violations currently open and requiring attention.',
@@ -169,7 +222,7 @@ export default function AllInsights() {
         explanation: 'Unresolved housing issues currently impacting residents. Fewer open violations mean faster resolution and better tenant protection.',
       },
       {
-        id: 'all-housing-3',
+        id: 'all-housing-4',
         title: 'Violation Closure Rate',
         category: 'Housing',
         description: 'Percentage of violations that have been resolved.',
@@ -191,9 +244,46 @@ export default function AllInsights() {
     const gradeAPercent = health.data.restaurantStats.totalInspections > 0
       ? (health.data.restaurantStats.gradeA / health.data.restaurantStats.totalInspections) * 100
       : 0;
+    
+    const currentYearEvents = health.data.safetyEventsStats.outreachExpansion.currentYear;
+    const previousYearEvents = health.data.safetyEventsStats.outreachExpansion.previousYear;
+    const growthPercent = health.data.safetyEventsStats.outreachExpansion.growthPercent;
+    
     indicators.push(
       {
         id: 'all-health-1',
+        title: 'Total Safety Events (Current Year)',
+        category: 'Health',
+        description: 'Total safety outreach events conducted this year.',
+        value: currentYearEvents,
+        unit: 'events',
+        target: previousYearEvents,
+        targetCondition: '>=',
+        lastUpdate: new Date(health.data.lastUpdated).toISOString().split('T')[0],
+        source: 'NYC Safety Events',
+        trend: growthPercent > 0 ? 'up' : 'stable',
+        color: '#10b981',
+        higherIsBetter: true,
+        explanation: 'Show if outreach efforts are expanding or shrinking across administrations. More events indicate increased public safety engagement and community outreach programs.',
+      },
+      {
+        id: 'all-health-2',
+        title: 'Safety Events Growth',
+        category: 'Health',
+        description: 'Year-over-year growth in safety outreach events.',
+        value: Math.round(growthPercent * 10) / 10,
+        unit: '%',
+        target: 5,
+        targetCondition: '>=',
+        lastUpdate: new Date(health.data.lastUpdated).toISOString().split('T')[0],
+        source: 'NYC Safety Events',
+        trend: growthPercent >= 5 ? 'up' : 'stable',
+        color: '#8b5cf6',
+        higherIsBetter: true,
+        explanation: 'Growth in safety outreach programs indicates expanding public safety initiatives and increased community engagement efforts.',
+      },
+      {
+        id: 'all-health-3',
         title: 'Restaurant Grade A Rate',
         category: 'Health',
         description: 'Percentage of restaurants receiving Grade A rating.',
@@ -209,7 +299,7 @@ export default function AllInsights() {
         explanation: 'Measures food safety compliance across NYC restaurants. Grade A means excellent sanitation, protecting public health.',
       },
       {
-        id: 'all-health-2',
+        id: 'all-health-4',
         title: 'Critical Violations',
         category: 'Health',
         description: 'Food safety violations requiring immediate attention.',
@@ -323,9 +413,64 @@ export default function AllInsights() {
     const treeHealthPercent = environment.data.treeStats.totalTrees > 0
       ? (environment.data.treeStats.goodHealth / environment.data.treeStats.totalTrees) * 100
       : 0;
+    
+    // Calculate PM2.5 trend for insight
+    const pm25Trend = environment.data.pm25YearlyTrend;
+    const currentPM25 = pm25Trend.length > 0 ? pm25Trend[pm25Trend.length - 1].pm25 : 0;
+    const firstPM25 = pm25Trend.length > 0 ? pm25Trend[0].pm25 : 0;
+    const pm25Improvement = firstPM25 > 0 ? ((firstPM25 - currentPM25) / firstPM25) * 100 : 0;
+    
     indicators.push(
       {
         id: 'all-environment-1',
+        title: 'Air Quality Index (PM2.5)',
+        category: 'Environment',
+        description: 'Fine particulate matter levels - decade-long improvement trend.',
+        value: Math.round(currentPM25 * 10) / 10,
+        unit: 'μg/m³',
+        target: 10,
+        targetCondition: '<=',
+        lastUpdate: new Date(environment.data.lastUpdated).toISOString().split('T')[0],
+        source: 'NYC DEP',
+        trend: pm25Improvement > 10 ? 'down' : 'stable',
+        color: '#84cc16',
+        higherIsBetter: false,
+        explanation: 'Air quality improvement under city initiatives. PM2.5 levels have decreased over the decade, showing successful environmental policies and cleaner air.',
+      },
+      {
+        id: 'all-environment-2',
+        title: 'Greenhouse Gas Emissions',
+        category: 'Environment',
+        description: 'Citywide CO2e emissions reduction - climate action policy impact.',
+        value: environment.data.ghgEmissionsStats.reductionPercent,
+        unit: '%',
+        target: 20,
+        targetCondition: '>=',
+        lastUpdate: new Date(environment.data.lastUpdated).toISOString().split('T')[0],
+        source: 'NYC DEP',
+        trend: environment.data.ghgEmissionsStats.reductionPercent >= 20 ? 'down' : 'stable',
+        color: '#06b6d4',
+        higherIsBetter: false,
+        explanation: 'Climate action policy impact. NYC has achieved significant greenhouse gas emissions reduction through clean energy initiatives, building efficiency programs, and sustainable transportation policies.',
+      },
+      {
+        id: 'all-environment-3',
+        title: 'Recycling Diversion Rate',
+        category: 'Environment',
+        description: 'Share of waste recycled vs. landfill - environmental sustainability culture shift.',
+        value: environment.data.recyclingDiversionStats.currentDiversionRate,
+        unit: '%',
+        target: 25,
+        targetCondition: '>=',
+        lastUpdate: new Date(environment.data.lastUpdated).toISOString().split('T')[0],
+        source: 'NYC DSNY',
+        trend: environment.data.recyclingDiversionStats.improvementPercent > 10 ? 'up' : 'stable',
+        color: '#10b981',
+        higherIsBetter: true,
+        explanation: 'Environmental sustainability culture shift. NYC has improved waste diversion through expanded recycling programs, composting initiatives, and public education campaigns promoting sustainable waste management practices.',
+      },
+      {
+        id: 'all-environment-4',
         title: 'Street Tree Health',
         category: 'Environment',
         description: 'Percentage of street trees in good health condition.',
@@ -336,12 +481,12 @@ export default function AllInsights() {
         lastUpdate: '2015-08-01',
         source: 'NYC Parks',
         trend: treeHealthPercent >= 70 ? 'up' : 'stable',
-        color: '#84cc16',
+        color: '#22c55e',
         higherIsBetter: true,
         explanation: 'Monitors urban forest vitality. Healthy trees improve air quality, reduce heat, and enhance neighborhood livability.',
       },
       {
-        id: 'all-environment-2',
+        id: 'all-environment-5',
         title: 'Total Street Trees',
         category: 'Environment',
         description: 'Total number of street trees in NYC.',
@@ -358,22 +503,62 @@ export default function AllInsights() {
 
   // Transportation Indicators
   if (transportation.data) {
+    const subwayPerformance = transportation.data.subwayPerformanceStats;
+    const currentPerformance = subwayPerformance.currentYearPerformance;
+    const improvement = subwayPerformance.performanceImprovement;
+    
     indicators.push(
       {
         id: 'all-transportation-1',
-        title: 'For-Hire Vehicles',
+        title: 'Subway On-Time Performance',
         category: 'Transportation',
-        description: 'Total TLC-licensed vehicles in NYC.',
-        value: transportation.data.fhvStats.totalVehicles,
-        unit: 'vehicles',
+        description: 'Current year subway service reliability.',
+        value: Math.round(currentPerformance * 10) / 10,
+        unit: '%',
+        target: 80,
+        targetCondition: '>=',
         lastUpdate: new Date(transportation.data.lastUpdated).toISOString().split('T')[0],
-        source: 'NYC TLC',
-        color: '#06b6d4',
+        source: 'MTA',
+        trend: subwayPerformance.recentTrend === 'improving' ? 'up' : subwayPerformance.recentTrend === 'declining' ? 'down' : 'stable',
+        color: currentPerformance >= 80 ? '#10b981' : currentPerformance >= 70 ? '#f59e0b' : '#ef4444',
+        chartData: subwayPerformance.yearlyTrend.map(t => ({
+          year: parseInt(t.year),
+          value: t.onTimePerformance,
+        })),
         higherIsBetter: true,
-        explanation: 'Represents the size of the taxi and ride-share fleet, indicating transportation capacity and accessibility across the city.',
+        explanation: 'Service reliability improvements/declines. Higher percentages indicate better subway performance and more reliable public transportation for NYC residents.',
       },
+      // {
+      //   id: 'all-transportation-2',
+      //   title: 'Subway Performance Improvement',
+      //   category: 'Transportation',
+      //   description: 'Decade-long improvement in subway reliability.',
+      //   value: Math.round(improvement * 10) / 10,
+      //   unit: '%',
+      //   target: 0,
+      //   targetCondition: '>=',
+      //   lastUpdate: new Date(transportation.data.lastUpdated).toISOString().split('T')[0],
+      //   source: 'MTA',
+      //   trend: improvement > 0 ? 'up' : improvement < 0 ? 'down' : 'stable',
+      //   color: improvement > 0 ? '#10b981' : improvement < 0 ? '#ef4444' : '#6b7280',
+      //   higherIsBetter: true,
+      //   explanation: 'Long-term trend in subway service quality. Positive values indicate improving reliability over the decade, while negative values suggest declining service performance.',
+      // },
+      // {
+      //   id: 'all-transportation-3',
+      //   title: 'For-Hire Vehicles',
+      //   category: 'Transportation',
+      //   description: 'Total TLC-licensed vehicles in NYC.',
+      //   value: transportation.data.fhvStats.totalVehicles,
+      //   unit: 'vehicles',
+      //   lastUpdate: new Date(transportation.data.lastUpdated).toISOString().split('T')[0],
+      //   source: 'NYC TLC',
+      //   color: '#06b6d4',
+      //   higherIsBetter: true,
+      //   explanation: 'Represents the size of the taxi and ride-share fleet, indicating transportation capacity and accessibility across the city.',
+      // },
       {
-        id: 'all-transportation-2',
+        id: 'all-transportation-4',
         title: 'Yellow Taxi Trips',
         category: 'Transportation',
         description: 'Total yellow taxi trips recorded.',
@@ -388,9 +573,34 @@ export default function AllInsights() {
     );
   }
 
-  // Sort indicators: prioritize positive metrics (higherIsBetter = true) first
+  // Sort indicators: prioritize positive impact metrics first
   const sortedIndicators = [...indicators].sort((a, b) => {
-    // First, sort by higherIsBetter (true first)
+    // Define positive impact categories (metrics that show good outcomes)
+    const positiveImpactCategories = [
+      'Business', 'Education', 'Environment', 'Health', 'Housing', 'Transportation'
+    ];
+    
+    // Define positive impact titles (specific metrics that show good outcomes)
+    const positiveImpactTitles = [
+      'Total Certified Businesses', 'Business Growth Rate', 'Jobs Created',
+      'Total Student Enrollment', 'Enrollment Growth', 'Students with Disabilities',
+      'Air Quality Index (PM2.5)', 'Greenhouse Gas Emissions', 'Recycling Diversion Rate', 'Street Tree Health',
+      'Restaurant Grade A Rate', 'Total Safety Events', 'Safety Events Growth',
+      'Affordable Housing Units Created/Preserved', 'Building Permits', 'Violation Closure Rate',
+      'Subway On-Time Performance', 'For-Hire Vehicles', 'Yellow Taxi Trips'
+    ];
+    
+    // Check if metrics are positive impact
+    const aIsPositive = positiveImpactCategories.includes(a.category) && 
+                       (positiveImpactTitles.includes(a.title) || a.higherIsBetter === true);
+    const bIsPositive = positiveImpactCategories.includes(b.category) && 
+                       (positiveImpactTitles.includes(b.title) || b.higherIsBetter === true);
+    
+    // First, sort by positive impact (positive first)
+    if (aIsPositive && !bIsPositive) return -1;
+    if (!aIsPositive && bIsPositive) return 1;
+    
+    // Then by higherIsBetter (true first)
     if (a.higherIsBetter === true && b.higherIsBetter !== true) return -1;
     if (a.higherIsBetter !== true && b.higherIsBetter === true) return 1;
     

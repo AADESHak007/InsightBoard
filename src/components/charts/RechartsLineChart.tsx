@@ -6,6 +6,7 @@ interface RechartsLineChartProps {
   data: Array<{
     name: string;
     value: number;
+    fullLabel?: string; // Full label for tooltip
   }>;
   title?: string;
   dataAlert?: string;
@@ -24,11 +25,12 @@ export default function RechartsLineChart({
   xAxisLabel,
   yAxisLabel
 }: RechartsLineChartProps) {
-  const CustomTooltip = ({ active, payload, label }: { active?: boolean; payload?: Array<{ value: number }>; label?: string }) => {
+  const CustomTooltip = ({ active, payload, label }: { active?: boolean; payload?: Array<{ value: number; payload?: { fullLabel?: string } }>; label?: string }) => {
     if (active && payload && payload.length) {
+      const fullLabel = payload[0].payload?.fullLabel || label;
       return (
         <div className="bg-[#1f2937] border border-[#374151] rounded-lg p-3 shadow-lg">
-          <p className="text-white font-medium">{label}</p>
+          <p className="text-white font-medium">{fullLabel}</p>
           <p className="text-white text-lg font-bold">
             {payload[0].value.toLocaleString()}
           </p>

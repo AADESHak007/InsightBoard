@@ -57,10 +57,10 @@ export default function AllChartsView() {
         </div>
       </div>
 
-      {/* Business Sector */}
+      {/* Business Sector - Positive Impact */}
       {business.data && (
         <div className="space-y-4">
-          <h3 className="text-lg sm:text-xl font-semibold text-white border-b border-gray-700 pb-2">Business Sector</h3>
+          <h3 className="text-lg sm:text-xl font-semibold text-white border-b border-gray-700 pb-2">Business Sector - Economic Growth</h3>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Business Distribution by Borough - Bar Chart */}
@@ -69,7 +69,8 @@ export default function AllChartsView() {
                 data={business.data.breakdowns.boroughs.map(b => ({
                   name: b.borough,
                   value: b.count,
-                  fill: '#06b6d4'
+                  fill: '#06b6d4',
+                  fullLabel: `${b.borough}: ${b.count.toLocaleString()} certified businesses`
                 }))}
                 title="Business Distribution by Borough"
                 dataAlert="NYC SBS certified business data by location"
@@ -82,11 +83,11 @@ export default function AllChartsView() {
             <div className="bg-[#111827] border border-[#1f2937] rounded-lg p-4 h-[25rem]">
               <RechartsLineChart
                 data={[
-                  { name: '2019', value: 14500 },
-                  { name: '2020', value: 14800 },
-                  { name: '2021', value: 15200 },
-                  { name: '2022', value: 15600 },
-                  { name: '2023', value: business.data.stats.total }
+                  { name: '2019', value: 14500, fullLabel: '2019: 14,500 certified businesses' },
+                  { name: '2020', value: 14800, fullLabel: '2020: 14,800 certified businesses' },
+                  { name: '2021', value: 15200, fullLabel: '2021: 15,200 certified businesses' },
+                  { name: '2022', value: 15600, fullLabel: '2022: 15,600 certified businesses' },
+                  { name: '2023', value: business.data.stats.total, fullLabel: `2023: ${business.data.stats.total.toLocaleString()} certified businesses` }
                 ]}
                 title="Business Growth Trend"
                 dataAlert="Year-over-year growth in certified businesses"
@@ -100,10 +101,10 @@ export default function AllChartsView() {
         </div>
       )}
 
-      {/* Education Sector */}
+      {/* Education Sector - Positive Impact */}
       {education.data && (
         <div className="space-y-4">
-          <h3 className="text-lg sm:text-xl font-semibold text-white border-b border-gray-700 pb-2">Education Sector</h3>
+          <h3 className="text-lg sm:text-xl font-semibold text-white border-b border-gray-700 pb-2">Education Sector - Student Success</h3>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Student Demographics - Bar Chart */}
@@ -146,10 +147,10 @@ export default function AllChartsView() {
         </div>
       )}
 
-      {/* Housing Sector */}
+      {/* Housing Sector - Positive Impact */}
       {housing.data && (
         <div className="space-y-4">
-          <h3 className="text-lg sm:text-xl font-semibold text-white border-b border-gray-700 pb-2">Housing Sector</h3>
+          <h3 className="text-lg sm:text-xl font-semibold text-white border-b border-gray-700 pb-2">Housing Sector - Development & Affordability</h3>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Construction Permits by Borough - Bar Chart */}
@@ -189,10 +190,10 @@ export default function AllChartsView() {
         </div>
       )}
 
-      {/* Health Sector */}
+      {/* Health Sector - Positive Impact */}
       {health.data && (
         <div className="space-y-4">
-          <h3 className="text-lg sm:text-xl font-semibold text-white border-b border-gray-700 pb-2">Health Sector</h3>
+          <h3 className="text-lg sm:text-xl font-semibold text-white border-b border-gray-700 pb-2">Health Sector - Public Safety & Food Quality</h3>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Restaurant Inspections by Borough - Bar Chart */}
@@ -236,10 +237,100 @@ export default function AllChartsView() {
         </div>
       )}
 
-      {/* Public Safety Sector */}
+      {/* Environment Sector - Positive Impact */}
+      {environment.data && (
+        <div className="space-y-4">
+          <h3 className="text-lg sm:text-xl font-semibold text-white border-b border-gray-700 pb-2">Environment Sector - Sustainability & Climate Action</h3>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Tree Health by Borough - Bar Chart */}
+            <div className="bg-[#111827] border border-[#1f2937] rounded-lg p-4 h-[25rem]">
+              <RechartsBarChart
+                data={[
+                  { name: 'Manhattan', value: 85, fill: '#22c55e' },
+                  { name: 'Brooklyn', value: 78, fill: '#22c55e' },
+                  { name: 'Queens', value: 82, fill: '#22c55e' },
+                  { name: 'Bronx', value: 75, fill: '#22c55e' },
+                  { name: 'Staten Island', value: 88, fill: '#22c55e' }
+                ]}
+                title="Tree Health by Borough"
+                dataAlert="NYC Parks street tree health assessment data"
+                xAxisLabel="Borough"
+                yAxisLabel="Health Score (%)"
+              />
+            </div>
+
+            {/* Air Quality Trends - Line Chart */}
+            <div className="bg-[#111827] border border-[#1f2937] rounded-lg p-4 h-[25rem]">
+              <RechartsLineChart
+                data={[
+                  { name: '2019', value: 42 },
+                  { name: '2020', value: 38 },
+                  { name: '2021', value: 35 },
+                  { name: '2022', value: 32 },
+                  { name: '2023', value: 28 }
+                ]}
+                title="Air Quality Improvement"
+                dataAlert="Annual average PM2.5 levels (μg/m³) - lower is better"
+                showArea={false}
+                color="#84cc16"
+                xAxisLabel="Year"
+                yAxisLabel="PM2.5 Level (μg/m³)"
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Transportation Sector - Positive Impact */}
+      {transportation.data && (
+        <div className="space-y-4">
+          <h3 className="text-lg sm:text-xl font-semibold text-white border-b border-gray-700 pb-2">Transportation Sector - Mobility & Accessibility</h3>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Taxi Trips by Borough - Bar Chart */}
+            <div className="bg-[#111827] border border-[#1f2937] rounded-lg p-4 h-[25rem]">
+              <RechartsBarChart
+                data={Object.entries(transportation.data.taxiStats.tripsByBorough)
+                  .map(([borough, trips]) => ({
+                    name: borough,
+                    value: trips,
+                    fill: '#06b6d4'
+                  }))
+                  .sort((a, b) => b.value - a.value)}
+                title="Taxi Trips by Borough"
+                dataAlert="Historical data from 2017"
+                xAxisLabel="Borough"
+                yAxisLabel="Number of Trips"
+              />
+            </div>
+
+            {/* Transportation Recovery Trends - Line Chart */}
+            <div className="bg-[#111827] border border-[#1f2937] rounded-lg p-4 h-[25rem]">
+              <RechartsLineChart
+                data={[
+                  { name: '2019', value: 85000 },
+                  { name: '2020', value: 45000 },
+                  { name: '2021', value: 62000 },
+                  { name: '2022', value: 78000 },
+                  { name: '2023', value: transportation.data.taxiStats.totalTrips }
+                ]}
+                title="Transportation Recovery Trends"
+                dataAlert="Taxi and FHV usage recovery post-pandemic"
+                showArea={true}
+                color="#06b6d4"
+                xAxisLabel="Year"
+                yAxisLabel="Total Trips"
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Public Safety Sector - Monitoring & Improvement */}
       {safety.data && (
         <div className="space-y-4">
-          <h3 className="text-lg sm:text-xl font-semibold text-white border-b border-gray-700 pb-2">Public Safety Sector</h3>
+          <h3 className="text-lg sm:text-xl font-semibold text-white border-b border-gray-700 pb-2">Public Safety Sector - Monitoring & Improvement</h3>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Crime Severity Breakdown - Bar Chart */}
@@ -285,96 +376,6 @@ export default function AllChartsView() {
                 color="#ef4444"
                 xAxisLabel="Year"
                 yAxisLabel="Total Crime Incidents"
-              />
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Environment Sector */}
-      {environment.data && (
-        <div className="space-y-4">
-          <h3 className="text-lg sm:text-xl font-semibold text-white border-b border-gray-700 pb-2">Environment Sector</h3>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Tree Health by Borough - Bar Chart */}
-            <div className="bg-[#111827] border border-[#1f2937] rounded-lg p-4 h-[25rem]">
-              <RechartsBarChart
-                data={[
-                  { name: 'Manhattan', value: 85, fill: '#22c55e' },
-                  { name: 'Brooklyn', value: 78, fill: '#22c55e' },
-                  { name: 'Queens', value: 82, fill: '#22c55e' },
-                  { name: 'Bronx', value: 75, fill: '#22c55e' },
-                  { name: 'Staten Island', value: 88, fill: '#22c55e' }
-                ]}
-                title="Tree Health by Borough"
-                dataAlert="NYC Parks street tree health assessment data"
-                xAxisLabel="Borough"
-                yAxisLabel="Health Score (%)"
-              />
-            </div>
-
-            {/* Air Quality Trends - Line Chart */}
-            <div className="bg-[#111827] border border-[#1f2937] rounded-lg p-4 h-[25rem]">
-              <RechartsLineChart
-                data={[
-                  { name: '2019', value: 42 },
-                  { name: '2020', value: 38 },
-                  { name: '2021', value: 35 },
-                  { name: '2022', value: 32 },
-                  { name: '2023', value: 28 }
-                ]}
-                title="Air Quality Improvement"
-                dataAlert="Annual average PM2.5 levels (μg/m³) - lower is better"
-                showArea={false}
-                color="#84cc16"
-                xAxisLabel="Year"
-                yAxisLabel="PM2.5 Level (μg/m³)"
-              />
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Transportation Sector */}
-      {transportation.data && (
-        <div className="space-y-4">
-          <h3 className="text-lg sm:text-xl font-semibold text-white border-b border-gray-700 pb-2">Transportation Sector</h3>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Taxi Trips by Borough - Bar Chart */}
-            <div className="bg-[#111827] border border-[#1f2937] rounded-lg p-4 h-[25rem]">
-              <RechartsBarChart
-                data={Object.entries(transportation.data.taxiStats.tripsByBorough)
-                  .map(([borough, trips]) => ({
-                    name: borough,
-                    value: trips,
-                    fill: '#06b6d4'
-                  }))
-                  .sort((a, b) => b.value - a.value)}
-                title="Taxi Trips by Borough"
-                dataAlert="Historical data from 2017"
-                xAxisLabel="Borough"
-                yAxisLabel="Number of Trips"
-              />
-            </div>
-
-            {/* Transportation Recovery Trends - Line Chart */}
-            <div className="bg-[#111827] border border-[#1f2937] rounded-lg p-4 h-[25rem]">
-              <RechartsLineChart
-                data={[
-                  { name: '2019', value: 85000 },
-                  { name: '2020', value: 45000 },
-                  { name: '2021', value: 62000 },
-                  { name: '2022', value: 78000 },
-                  { name: '2023', value: transportation.data.taxiStats.totalTrips }
-                ]}
-                title="Transportation Recovery Trends"
-                dataAlert="Taxi and FHV usage recovery post-pandemic"
-                showArea={true}
-                color="#06b6d4"
-                xAxisLabel="Year"
-                yAxisLabel="Total Trips"
               />
             </div>
           </div>

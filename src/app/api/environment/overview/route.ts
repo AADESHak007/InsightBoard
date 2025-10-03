@@ -2,9 +2,14 @@ import { NextResponse } from 'next/server';
 import {
   fetchAirQuality,
   fetchStreetTrees,
+  fetchGHGEmissions,
+  fetchDSNYTonnage,
   calculateAirQualityStats,
   calculateTreeStats,
+  calculateGHGEmissionsStats,
+  calculateRecyclingDiversionStats,
   getYearlyAirQualityTrends,
+  getPM25YearlyTrend,
   getTreeDiameterDistribution,
 } from '@/lib/api/environmentData';
 import { memoryCache } from '@/lib/cache/memoryCache';
@@ -24,10 +29,12 @@ export async function GET() {
 
     console.log('⟳ Fetching environment data from NYC Open Data...');
     
-    // Fetch both datasets
-    const [airQuality, trees] = await Promise.all([
+    // Fetch all datasets
+    const [airQuality, trees, ghgEmissions, dsnyTonnage] = await Promise.all([
       fetchAirQuality(10000),
       fetchStreetTrees(10000),
+      fetchGHGEmissions(10000),
+      fetchDSNYTonnage(50000),
     ]);
 
     if ((!airQuality || airQuality.length === 0) && (!trees || trees.length === 0)) {
@@ -40,13 +47,19 @@ export async function GET() {
     // Calculate statistics
     const airQualityStats = calculateAirQualityStats(airQuality);
     const treeStats = calculateTreeStats(trees);
+    const ghgEmissionsStats = calculateGHGEmissionsStats(ghgEmissions);
+    const recyclingDiversionStats = calculateRecyclingDiversionStats(dsnyTonnage);
     const airQualityTrends = getYearlyAirQualityTrends(airQuality);
+    const pm25YearlyTrend = getPM25YearlyTrend(airQuality);
     const treeDiameterDistribution = getTreeDiameterDistribution(trees);
 
     const response = {
       airQualityStats,
       treeStats,
+      ghgEmissionsStats,
+      recyclingDiversionStats,
       airQualityTrends,
+      pm25YearlyTrend,
       treeDiameterDistribution,
       lastUpdated: new Date().toISOString(),
     };
