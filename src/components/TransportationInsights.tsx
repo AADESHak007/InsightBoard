@@ -1,9 +1,8 @@
 'use client';
 
 import { useTransportationData } from '@/hooks/useTransportationData';
-import IndicatorCard from './IndicatorCard';
+import CompactMetricCard from './CompactMetricCard';
 import RefreshDataButton from './RefreshDataButton';
-import BarChart from './charts/BarChart';
 import { Indicator } from '@/types/indicator';
 
 export default function TransportationInsights() {
@@ -11,12 +10,11 @@ export default function TransportationInsights() {
 
   if (loading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-5">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
         {[1, 2, 3, 4, 5, 6].map((i) => (
-          <div key={i} className="bg-[#111827] border border-[#1f2937] rounded-lg p-5 animate-pulse">
-            <div className="h-6 bg-[#1f2937] rounded w-3/4 mb-4"></div>
-            <div className="h-4 bg-[#1f2937] rounded w-1/2 mb-6"></div>
-            <div className="h-12 bg-[#1f2937] rounded w-full"></div>
+          <div key={i} className="bg-[#111827] border border-[#1f2937] rounded-lg p-3 sm:p-4 animate-pulse">
+            <div className="h-4 bg-[#1f2937] rounded w-3/4 mb-2"></div>
+            <div className="h-8 bg-[#1f2937] rounded w-1/2"></div>
           </div>
         ))}
       </div>
@@ -221,36 +219,12 @@ export default function TransportationInsights() {
       </div>
 
       {/* Main Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 items-start">
         {indicators.map((indicator) => (
-          <IndicatorCard key={indicator.id} indicator={indicator} />
+          <CompactMetricCard key={indicator.id} indicator={indicator} />
         ))}
       </div>
 
-      {/* Taxi Trips by Borough */}
-      <div className="bg-[#111827] border border-[#1f2937] rounded-lg p-6">
-        <div className="mb-4">
-          <h3 className="text-xl font-semibold text-white">Yellow Taxi Trips by Borough</h3>
-          <p className="text-sm text-gray-400 mt-1">
-            Distribution of taxi pickups across NYC boroughs (2017 sample data)
-          </p>
-        </div>
-        <BarChart
-          data={Object.entries(data.taxiStats.tripsByBorough)
-            .map(([borough, trips]) => ({
-              label: borough,
-              value: trips,
-              percentage: (trips / data.taxiStats.totalTrips) * 100,
-            }))
-            .sort((a, b) => b.value - a.value)}
-          title=""
-          height={400}
-          color="#06b6d4"
-          xAxisLabel="Borough"
-          yAxisLabel="Number of Trips"
-          dataAlert="Historical data from 2017 - may not reflect current patterns"
-        />
-      </div>
     </div>
   );
 }

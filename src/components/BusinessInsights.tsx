@@ -2,9 +2,8 @@
 
 import { useBusinessData } from '@/hooks/useBusinessData';
 import { useBusinessAcceleration } from '@/hooks/useBusinessAcceleration';
-import IndicatorCard from './IndicatorCard';
+import CompactMetricCard from './CompactMetricCard';
 import RefreshDataButton from './RefreshDataButton';
-import BarChart from './charts/BarChart';
 import { Indicator } from '@/types/indicator';
 
 export default function BusinessInsights() {
@@ -13,12 +12,11 @@ export default function BusinessInsights() {
 
   if (loading) {
     return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
         {[1, 2, 3, 4].map((i) => (
-          <div key={i} className="bg-[#111827] border border-[#1f2937] rounded-lg p-4 sm:p-5 animate-pulse">
-            <div className="h-5 sm:h-6 bg-[#1f2937] rounded w-3/4 mb-3 sm:mb-4"></div>
-            <div className="h-3 sm:h-4 bg-[#1f2937] rounded w-1/2 mb-4 sm:mb-6"></div>
-            <div className="h-10 sm:h-12 bg-[#1f2937] rounded w-full"></div>
+          <div key={i} className="bg-[#111827] border border-[#1f2937] rounded-lg p-3 sm:p-4 animate-pulse">
+            <div className="h-4 bg-[#1f2937] rounded w-3/4 mb-2"></div>
+            <div className="h-8 bg-[#1f2937] rounded w-1/2"></div>
           </div>
         ))}
       </div>
@@ -176,54 +174,13 @@ export default function BusinessInsights() {
         <RefreshDataButton onRefresh={refetch} />
       </div>
 
-      {/* Main Stats - Full Width for Top Metrics */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5 mb-6">
-        {indicators.slice(0, 4).map((indicator) => (
-          <IndicatorCard key={indicator.id} indicator={indicator} />
+      {/* Main Stats */}
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 mb-6 items-start">
+        {indicators.map((indicator) => (
+          <CompactMetricCard key={indicator.id} indicator={indicator} />
         ))}
       </div>
 
-      {/* Job Creation Stats */}
-      {indicators.length > 4 && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5 mb-6">
-          {indicators.slice(4).map((indicator) => (
-            <IndicatorCard key={indicator.id} indicator={indicator} />
-          ))}
-        </div>
-      )}
-
-      {/* Borough Distribution - Bar Chart */}
-      <div className="bg-[#111827] border border-[#1f2937] rounded-lg p-4 sm:p-6">
-        <BarChart
-          data={data.breakdowns.boroughs.map(b => ({
-            label: b.borough,
-            value: b.count,
-            percentage: b.percentage,
-          }))}
-          title="Borough Distribution"
-          height={300}
-          color="#06b6d4"
-          xAxisLabel="Borough"
-          yAxisLabel="Number of Businesses"
-        />
-      </div>
-
-      {/* Borough Distributions */}
-      <div className="bg-[#111827] border border-[#1f2937] rounded-lg p-4 sm:p-6">
-        <BarChart
-          data={[
-            { label: 'Manhattan', value: 4500, percentage: 28.5 },
-            { label: 'Brooklyn', value: 3800, percentage: 24.1 },
-            { label: 'Queens', value: 3200, percentage: 20.3 },
-            { label: 'Bronx', value: 2800, percentage: 17.7 },
-            { label: 'Staten Island', value: 1500, percentage: 9.5 },
-          ]}
-          title="Certified Businesses by Borough"
-          height={300}
-          xAxisLabel="Borough"
-          yAxisLabel="Number of Businesses"
-        />
-      </div>
     </div>
   );
 }

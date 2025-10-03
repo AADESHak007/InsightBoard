@@ -1,10 +1,8 @@
 'use client';
 
 import { usePublicSafetyData } from '@/hooks/usePublicSafetyData';
-import IndicatorCard from './IndicatorCard';
+import CompactMetricCard from './CompactMetricCard';
 import RefreshDataButton from './RefreshDataButton';
-import BarChart from './charts/BarChart';
-import PieChart from './charts/PieChart';
 import { Indicator } from '@/types/indicator';
 
 export default function PublicSafetyInsights() {
@@ -12,12 +10,11 @@ export default function PublicSafetyInsights() {
 
   if (loading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-5">
-        {[1, 2, 3].map((i) => (
-          <div key={i} className="bg-[#111827] border border-[#1f2937] rounded-lg p-5 animate-pulse">
-            <div className="h-6 bg-[#1f2937] rounded w-3/4 mb-4"></div>
-            <div className="h-4 bg-[#1f2937] rounded w-1/2 mb-6"></div>
-            <div className="h-12 bg-[#1f2937] rounded w-full"></div>
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
+        {[1, 2, 3, 4, 5, 6].map((i) => (
+          <div key={i} className="bg-[#111827] border border-[#1f2937] rounded-lg p-3 sm:p-4 animate-pulse">
+            <div className="h-4 bg-[#1f2937] rounded w-3/4 mb-2"></div>
+            <div className="h-8 bg-[#1f2937] rounded w-1/2"></div>
           </div>
         ))}
       </div>
@@ -160,61 +157,12 @@ export default function PublicSafetyInsights() {
       </div>
 
       {/* Main Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 items-start">
         {indicators.map((indicator) => (
-          <IndicatorCard key={indicator.id} indicator={indicator} />
+          <CompactMetricCard key={indicator.id} indicator={indicator} />
         ))}
       </div>
 
-      {/* Crime Types Distribution */}
-      <div className="bg-[#111827] border border-[#1f2937] rounded-lg p-6">
-        <div className="mb-4">
-          <h3 className="text-xl font-semibold text-white">Crime Severity Breakdown</h3>
-          <p className="text-sm text-gray-400 mt-1">
-            Source: NYPD Complaint Data
-          </p>
-        </div>
-        <PieChart
-          data={[
-            {
-              label: 'Felonies',
-              value: data.crimeStats.felonies,
-              percentage: (data.crimeStats.felonies / data.crimeStats.totalCrimes) * 100,
-            },
-            {
-              label: 'Misdemeanors',
-              value: data.crimeStats.misdemeanors,
-              percentage: (data.crimeStats.misdemeanors / data.crimeStats.totalCrimes) * 100,
-            },
-            {
-              label: 'Violations',
-              value: data.crimeStats.violations,
-              percentage: (data.crimeStats.violations / data.crimeStats.totalCrimes) * 100,
-            },
-          ]}
-          title=""
-          size={450}
-        />
-      </div>
-
-      {/* Crimes by Borough */}
-      <div className="bg-[#111827] border border-[#1f2937] rounded-lg p-6">
-        <BarChart
-          data={Object.entries(data.crimeStats.crimesByBorough)
-            .filter(([borough]) => borough !== 'UNKNOWN')
-            .map(([borough, count]) => ({
-              label: borough,
-              value: count,
-              percentage: (count / data.crimeStats.totalCrimes) * 100,
-            }))
-            .sort((a, b) => b.value - a.value)}
-          title="Crime Distribution by Borough"
-          height={400}
-          color="#ef4444"
-          xAxisLabel="Borough"
-          yAxisLabel="Number of Incidents"
-        />
-      </div>
     </div>
   );
 }

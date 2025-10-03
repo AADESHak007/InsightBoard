@@ -1,7 +1,7 @@
 'use client';
 
 import { useEnvironmentData } from '@/hooks/useEnvironmentData';
-import IndicatorCard from './IndicatorCard';
+import CompactMetricCard from './CompactMetricCard';
 import RefreshDataButton from './RefreshDataButton';
 import { Indicator } from '@/types/indicator';
 
@@ -10,12 +10,11 @@ export default function EnvironmentInsights() {
 
   if (loading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-5">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
         {[1, 2, 3].map((i) => (
-          <div key={i} className="bg-[#111827] border border-[#1f2937] rounded-lg p-5 animate-pulse">
-            <div className="h-6 bg-[#1f2937] rounded w-3/4 mb-4"></div>
-            <div className="h-4 bg-[#1f2937] rounded w-1/2 mb-6"></div>
-            <div className="h-12 bg-[#1f2937] rounded w-full"></div>
+          <div key={i} className="bg-[#111827] border border-[#1f2937] rounded-lg p-3 sm:p-4 animate-pulse">
+            <div className="h-4 bg-[#1f2937] rounded w-3/4 mb-2"></div>
+            <div className="h-8 bg-[#1f2937] rounded w-1/2"></div>
           </div>
         ))}
       </div>
@@ -171,11 +170,12 @@ export default function EnvironmentInsights() {
       </div>
 
       {/* Main Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 items-start mb-6">
         {indicators.map((indicator) => (
-          <IndicatorCard key={indicator.id} indicator={indicator} />
+          <CompactMetricCard key={indicator.id} indicator={indicator} />
         ))}
       </div>
+
 
     </div>
   );

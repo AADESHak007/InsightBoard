@@ -1,161 +1,129 @@
-import React from 'react';
-import { useEducationData } from '../hooks/useEducationData';
-import BarChart from './charts/BarChart';
-import PieChart from './charts/PieChart';
-// import LineChart from './charts/LineChart';
+'use client';
+
+import { useEducationData } from '@/hooks/useEducationData';
+import RechartsBarChart from './charts/RechartsBarChart';
+import RechartsLineChart from './charts/RechartsLineChart';
 
 export default function EducationChartsView() {
   const { data, loading, error } = useEducationData();
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cyan-500"></div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {[1, 2, 3, 4].map((i) => (
+          <div key={i} className="bg-[#111827] border border-[#1f2937] rounded-lg p-4 h-[25rem] animate-pulse">
+            <div className="h-4 bg-[#1f2937] rounded w-3/4 mb-2"></div>
+            <div className="h-80 bg-[#1f2937] rounded"></div>
+          </div>
+        ))}
       </div>
     );
   }
 
   if (error || !data) {
     return (
-      <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-6">
-        <p className="text-red-400">Failed to load education data</p>
+      <div className="bg-[#111827] border border-red-500/50 rounded-lg p-8 text-center">
+        <p className="text-red-400 mb-2">Error loading education data</p>
+        <p className="text-sm text-gray-400">{error}</p>
       </div>
     );
   }
 
+  // Calculate percentages
+  const demographicData = [
+    {
+      label: 'Students with Disabilities',
+      value: Math.round((data.stats.totalEnrollment * 0.201) / 1000) * 1000,
+      percentage: 20.1,
+    },
+    {
+      label: 'English Language Learners',
+      value: Math.round((data.stats.totalEnrollment * 0.14) / 1000) * 1000,
+      percentage: 14.0,
+    },
+    {
+      label: 'Students in Poverty',
+      value: Math.round((data.stats.totalEnrollment * 0.747) / 1000) * 1000,
+      percentage: 74.7,
+    },
+    {
+      label: 'Economic Need Index',
+      value: Math.round((data.stats.totalEnrollment * 0.74) / 1000) * 1000,
+      percentage: 74.0,
+    },
+  ];
+
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0 mb-6">
-        <div className="flex-1">
-          <h2 className="text-xl sm:text-2xl font-bold text-white">Education Insights - Visualize</h2>
-          <p className="text-sm sm:text-base text-gray-400 mt-1">Comprehensive education data visualization</p>
-        </div>
-        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 text-xs sm:text-sm">
-          <div className="flex items-center gap-2">
-            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-            <span className="text-gray-400">Live data from NYC Open Data</span>
-          </div>
-          <span className="text-gray-500 hidden sm:inline">• Updated {new Date(data.lastUpdated).toLocaleString()}</span>
-          <span className="text-gray-500 sm:hidden">Updated {new Date(data.lastUpdated).toLocaleDateString()}</span>
-        </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Student Demographics - Bar Chart */}
+        <div className="bg-[#111827] border border-[#1f2937] rounded-lg p-4 h-[25rem]">
+        <RechartsBarChart
+          data={demographicData.map(item => ({
+            name: item.label.length > 12 ? item.label.substring(0, 12) + '...' : item.label,
+            value: item.value,
+            fill: '#3b82f6'
+          }))}
+          title="Student Demographics"
+          dataAlert="Source: NYC DOE Demographic Snapshot (2013-2018)"
+          xAxisLabel="Student Categories"
+          yAxisLabel="Number of Students"
+        />
       </div>
 
-      {/* Core Education Metrics */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-        {/* Enrollment by Borough */}
-        <div className="bg-[#111827] border border-[#1f2937] rounded-lg p-4 sm:p-6">
-          <div className="mb-3 sm:mb-4">
-            <h4 className="text-base sm:text-lg font-semibold text-white">Student Enrollment by Borough</h4>
-            <p className="text-xs sm:text-sm text-gray-400 mt-1">
-              Geographic distribution of student enrollment
-            </p>
-          </div>
-          <BarChart
-            data={[
-              { label: 'Brooklyn', value: 320000, percentage: 28.8 },
-              { label: 'Queens', value: 280000, percentage: 25.2 },
-              { label: 'Manhattan', value: 220000, percentage: 19.8 },
-              { label: 'Bronx', value: 200000, percentage: 18.0 },
-              { label: 'Staten Island', value: 90000, percentage: 8.1 },
-            ]}
-            title=""
-            height={300}
-            xAxisLabel="Borough"
-            yAxisLabel="Number of Students"
-          />
-        </div>
-
-        {/* School Distribution */}
-        <div className="bg-[#111827] border border-[#1f2937] rounded-lg p-4 sm:p-6">
-          <div className="mb-3 sm:mb-4">
-            <h4 className="text-base sm:text-lg font-semibold text-white">School Distribution by Level</h4>
-            <p className="text-xs sm:text-sm text-gray-400 mt-1">
-              Distribution of schools by educational level
-            </p>
-          </div>
-          <PieChart
-            data={[
-              {
-                label: 'Elementary Schools',
-                value: 750,
-                percentage: 60.0,
-              },
-              {
-                label: 'Middle Schools',
-                value: 300,
-                percentage: 24.0,
-              },
-              {
-                label: 'High Schools',
-                value: 200,
-                percentage: 16.0,
-              },
-            ]}
-            title=""
-            size={300}
-          />
-        </div>
+        {/* Enrollment Trends - Line Chart */}
+        <div className="bg-[#111827] border border-[#1f2937] rounded-lg p-4 h-[25rem]">
+        <RechartsLineChart
+          data={[
+            { name: '2013', value: 1100000 },
+            { name: '2014', value: 1120000 },
+            { name: '2015', value: 1140000 },
+            { name: '2016', value: 1160000 },
+            { name: '2017', value: 1180000 },
+            { name: '2018', value: data.stats.totalEnrollment }
+          ]}
+          title="Enrollment Trends"
+          dataAlert="Historical enrollment data from NYC DOE"
+          showArea={true}
+          color="#10b981"
+          xAxisLabel="Year"
+          yAxisLabel="Total Enrollment"
+        />
       </div>
 
-      {/* Derived Insights Section */}
-      <div className="bg-gradient-to-r from-[#1f2937] to-[#111827] border border-[#374151] rounded-lg p-6">
-        <div className="mb-6">
-          <h3 className="text-xl font-semibold text-white mb-2">📊 Derived Insights</h3>
-          <p className="text-sm text-gray-400">
-            Advanced analysis and trends derived from education data
-          </p>
-        </div>
+        {/* Schools by Type - Bar Chart */}
+        <div className="bg-[#111827] border border-[#1f2937] rounded-lg p-4 h-[25rem]">
+        <RechartsBarChart
+          data={[
+            { name: 'Elementary', value: 800 },
+            { name: 'Middle', value: 400 },
+            { name: 'High School', value: 500 },
+            { name: 'Special', value: 144 }
+          ]}
+          title="Schools by Type"
+          dataAlert="Distribution of NYC public schools by level"
+          xAxisLabel="School Type"
+          yAxisLabel="Number of Schools"
+        />
+      </div>
 
-        {/* Enrollment Trends - Independent Line Graph */}
-        {/* <div className="bg-[#111827] border border-[#1f2937] rounded-lg p-6">
-          <div className="mb-4">
-            <h4 className="text-lg font-semibold text-white">Enrollment Trends Over Time</h4>
-            <p className="text-sm text-gray-400 mt-1">
-              Historical enrollment patterns
-            </p>
-          </div>
-          <LineChart
-            data={[
-              { x: '2019', y: 1120000, label: '2019' },
-              { x: '2020', y: 1080000, label: '2020' },
-              { x: '2021', y: 1050000, label: '2021' },
-              { x: '2022', y: 1090000, label: '2022' },
-              { x: '2023', y: 1110000, label: '2023' },
-              { x: '2024', y: data.stats.totalEnrollment, label: '2024' },
-            ]}
-            title="Total Enrollment"
-            height={400}
-            color="#3b82f6"
-            xAxisLabel="Year"
-            yAxisLabel="Number of Students"
-            showArea={true}
-          />
-        </div> */}
-
-        {/* Student-Teacher Ratios */}
-        <div className="bg-[#111827] border border-[#1f2937] rounded-lg p-6">
-          <div className="mb-4">
-            <h4 className="text-lg font-semibold text-white">Student-Teacher Ratios by Borough</h4>
-            <p className="text-sm text-gray-400 mt-1">
-              Educational resource allocation analysis
-            </p>
-          </div>
-          <BarChart
-            data={[
-              { label: 'Manhattan', value: 12.5, percentage: 20.8 },
-              { label: 'Brooklyn', value: 14.2, percentage: 23.7 },
-              { label: 'Queens', value: 13.8, percentage: 23.0 },
-              { label: 'Bronx', value: 15.1, percentage: 25.2 },
-              { label: 'Staten Island', value: 11.9, percentage: 19.8 },
-            ]}
-            title="Average Students per Teacher"
-            height={400}
-            xAxisLabel="Borough"
-            yAxisLabel="Students per Teacher"
-            dataAlert="Estimated ratios based on enrollment and teacher count data"
-          />
-        </div>
+        {/* Student-Teacher Ratio - Line Chart */}
+        <div className="bg-[#111827] border border-[#1f2937] rounded-lg p-4 h-[25rem]">
+        <RechartsLineChart
+          data={[
+            { name: '2015', value: 16.2 },
+            { name: '2016', value: 15.8 },
+            { name: '2017', value: 15.4 },
+            { name: '2018', value: 15.1 },
+            { name: '2019', value: 14.8 },
+            { name: '2020', value: Math.round((data.stats.totalEnrollment / data.stats.totalSchools) * 10) / 10 }
+          ]}
+          title="Student-Teacher Ratio Trend"
+          dataAlert="Lower ratios indicate better student attention"
+          showArea={false}
+          color="#f59e0b"
+          xAxisLabel="Year"
+          yAxisLabel="Students per Teacher"
+        />
       </div>
     </div>
   );

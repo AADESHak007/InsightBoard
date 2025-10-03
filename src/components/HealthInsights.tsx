@@ -1,9 +1,8 @@
 'use client';
 
 import { useHealthData } from '@/hooks/useHealthData';
-import IndicatorCard from './IndicatorCard';
+import CompactMetricCard from './CompactMetricCard';
 import RefreshDataButton from './RefreshDataButton';
-import BarChart from './charts/BarChart';
 
 import { Indicator } from '@/types/indicator';
 
@@ -12,12 +11,11 @@ export default function HealthInsights() {
 
   if (loading) {
     return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
         {[1, 2, 3, 4, 5, 6].map((i) => (
-          <div key={i} className="bg-[#111827] border border-[#1f2937] rounded-lg p-4 sm:p-5 animate-pulse">
-            <div className="h-5 sm:h-6 bg-[#1f2937] rounded w-3/4 mb-3 sm:mb-4"></div>
-            <div className="h-3 sm:h-4 bg-[#1f2937] rounded w-1/2 mb-4 sm:mb-6"></div>
-            <div className="h-10 sm:h-12 bg-[#1f2937] rounded w-full"></div>
+          <div key={i} className="bg-[#111827] border border-[#1f2937] rounded-lg p-3 sm:p-4 animate-pulse">
+            <div className="h-4 bg-[#1f2937] rounded w-3/4 mb-2"></div>
+            <div className="h-8 bg-[#1f2937] rounded w-1/2"></div>
           </div>
         ))}
       </div>
@@ -163,29 +161,12 @@ export default function HealthInsights() {
       </div>
 
       {/* Main Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5 mb-6">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 mb-6 items-start">
         {indicators.map((indicator) => (
-          <IndicatorCard key={indicator.id} indicator={indicator} />
+          <CompactMetricCard key={indicator.id} indicator={indicator} />
         ))}
       </div>
 
-      {/* Borough Distributions */}
-      <div className="bg-[#111827] border border-[#1f2937] rounded-lg p-4 sm:p-6">
-        <BarChart
-          data={Object.entries(data.restaurantStats.inspectionsByBorough)
-            .filter(([borough]) => borough !== 'UNKNOWN')
-            .map(([borough, count]) => ({
-              label: borough,
-              value: count,
-              percentage: (count / data.restaurantStats.totalInspections) * 100,
-            }))
-            .sort((a, b) => b.value - a.value)}
-          title="Restaurant Inspections by Borough"
-          height={300}
-          xAxisLabel="Borough"
-          yAxisLabel="Number of Inspections"
-        />
-      </div>
     </div>
   );
 }

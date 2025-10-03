@@ -42,70 +42,68 @@ export default function Home() {
   });
 
   return (
-    <div className="flex min-h-screen bg-[#0a0e1a]">
+    <div className="flex h-screen bg-[#0a0e1a]">
       <Sidebar 
         selectedCategory={selectedCategory} 
         onCategoryChange={setSelectedCategory}
       />
       
-      <main className="flex-1 lg:ml-64 p-4 sm:p-6 md:p-8 lg:p-8">
+      <main className="flex-1 lg:ml-64 p-3 sm:p-4 md:p-6 overflow-auto">
         {/* Header */}
-        <div className="mb-6 sm:mb-8 md:mb-10">
-          <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-2">
+        <div className="mb-4 sm:mb-6">
+          <h1 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-white mb-1">
             NYC Insights Dashboard
           </h1>
-          <p className="text-gray-400 text-sm sm:text-base md:text-lg">Track and analyze key city development indicators</p>
+          <p className="text-gray-400 text-xs sm:text-sm">Track and analyze key city development indicators</p>
         </div>
 
         {/* View Controls */}
-        <div className="mb-6 sm:mb-8 md:mb-10">
-          <div className="flex flex-wrap gap-2 sm:gap-3 md:gap-4">
+        <div className="mb-4 sm:mb-6">
+          <div className="flex flex-wrap gap-2">
             <button
               onClick={() => setViewMode('card')}
-              className={`flex items-center gap-1 sm:gap-2 md:gap-3 px-3 sm:px-4 md:px-5 py-2 md:py-3 rounded-lg font-medium transition-all text-sm sm:text-base md:text-lg ${
+              className={`flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg font-medium transition-all text-xs sm:text-sm ${
                 viewMode === 'card'
                   ? 'bg-cyan-500 text-white'
                   : 'bg-[#111827] text-gray-400 hover:text-white border border-[#1f2937]'
               }`}
             >
-              <Squares2X2Icon className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6" />
-              <span className="hidden sm:inline">Overview</span>
-              <span className="sm:hidden">Overview</span>
+              <Squares2X2Icon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              <span>Overview</span>
             </button>
             <button
               onClick={() => setViewMode('chart')}
-              className={`flex items-center gap-1 sm:gap-2 md:gap-3 px-3 sm:px-4 md:px-5 py-2 md:py-3 rounded-lg font-medium transition-all text-sm sm:text-base md:text-lg ${
+              className={`flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg font-medium transition-all text-xs sm:text-sm ${
                 viewMode === 'chart'
                   ? 'bg-cyan-500 text-white'
                   : 'bg-[#111827] text-gray-400 hover:text-white border border-[#1f2937]'
               }`}
             >
-              <ChartBarIcon className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6" />
-              <span className="hidden sm:inline">Visualize</span>
-              <span className="sm:hidden">Visualize</span>
+              <ChartBarIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              <span>Visualize</span>
             </button>
             <button
               onClick={() => setViewMode('table')}
-              className={`flex items-center gap-1 sm:gap-2 md:gap-3 px-3 sm:px-4 md:px-5 py-2 md:py-3 rounded-lg font-medium transition-all text-sm sm:text-base md:text-lg ${
+              className={`flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg font-medium transition-all text-xs sm:text-sm ${
                 viewMode === 'table'
                   ? 'bg-cyan-500 text-white'
                   : 'bg-[#111827] text-gray-400 hover:text-white border border-[#1f2937]'
               }`}
             >
-              <TableCellsIcon className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6" />
-              <span className="hidden sm:inline">Table View</span>
+              <TableCellsIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              <span className="hidden sm:inline">Table</span>
               <span className="sm:hidden">Table</span>
             </button>
             <button
               onClick={() => setViewMode('map')}
-              className={`flex items-center gap-1 sm:gap-2 md:gap-3 px-3 sm:px-4 md:px-5 py-2 md:py-3 rounded-lg font-medium transition-all text-sm sm:text-base md:text-lg ${
+              className={`flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg font-medium transition-all text-xs sm:text-sm ${
                 viewMode === 'map'
                   ? 'bg-cyan-500 text-white'
                   : 'bg-[#111827] text-gray-400 hover:text-white border border-[#1f2937]'
               }`}
             >
-              <MapIcon className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6" />
-              <span className="hidden sm:inline">Map View</span>
+              <MapIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              <span className="hidden sm:inline">Map</span>
               <span className="sm:hidden">Map</span>
             </button>
           </div>

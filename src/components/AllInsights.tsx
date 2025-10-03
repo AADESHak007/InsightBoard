@@ -8,7 +8,7 @@ import { useHealthData } from '@/hooks/useHealthData';
 import { usePublicSafetyData } from '@/hooks/usePublicSafetyData';
 import { useEnvironmentData } from '@/hooks/useEnvironmentData';
 import { useTransportationData } from '@/hooks/useTransportationData';
-import IndicatorCard from './IndicatorCard';
+import CompactMetricCard from './CompactMetricCard';
 import { Indicator } from '@/types/indicator';
 import { ArrowPathIcon } from '@heroicons/react/24/outline';
 
@@ -39,12 +39,11 @@ export default function AllInsights() {
 
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5">
-        {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
-          <div key={i} className="bg-[#111827] border border-[#1f2937] rounded-lg p-4 sm:p-5 animate-pulse">
-            <div className="h-5 sm:h-6 bg-[#1f2937] rounded w-3/4 mb-3 sm:mb-4"></div>
-            <div className="h-3 sm:h-4 bg-[#1f2937] rounded w-1/2 mb-4 sm:mb-6"></div>
-            <div className="h-10 sm:h-12 bg-[#1f2937] rounded w-full"></div>
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
+        {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((i) => (
+          <div key={i} className="bg-[#111827] border border-[#1f2937] rounded-lg p-3 sm:p-4 animate-pulse">
+            <div className="h-4 bg-[#1f2937] rounded w-3/4 mb-2"></div>
+            <div className="h-8 bg-[#1f2937] rounded w-1/2"></div>
           </div>
         ))}
       </div>
@@ -389,55 +388,52 @@ export default function AllInsights() {
     );
   }
 
+  // Sort indicators: prioritize positive metrics (higherIsBetter = true) first
+  const sortedIndicators = [...indicators].sort((a, b) => {
+    // First, sort by higherIsBetter (true first)
+    if (a.higherIsBetter === true && b.higherIsBetter !== true) return -1;
+    if (a.higherIsBetter !== true && b.higherIsBetter === true) return 1;
+    
+    // Then by category to group related metrics
+    if (a.category < b.category) return -1;
+    if (a.category > b.category) return 1;
+    
+    return 0;
+  });
+
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-pink-500/10 border border-blue-500/30 rounded-lg p-4 sm:p-6">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 gap-4">
-          <div className="flex-1">
-            <h2 className="text-xl sm:text-2xl font-bold text-white mb-2">NYC Insights Dashboard</h2>
-            <p className="text-sm sm:text-base text-gray-300">
-              Comprehensive overview of key metrics across all sectors in New York City. 
-              Data sourced from NYC Open Data and updated regularly.
+    <div className="space-y-4 sm:space-y-6">
+      {/* Compact Header */}
+      <div className="bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-pink-500/10 border border-blue-500/30 rounded-lg p-3 sm:p-4">
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex-1 min-w-0">
+            <h2 className="text-lg sm:text-xl font-bold text-white mb-1">NYC Key Metrics</h2>
+            <p className="text-xs sm:text-sm text-gray-300">
+              {indicators.length} metrics • Click any metric to expand details
             </p>
           </div>
           <button
             onClick={handleRefreshAll}
             disabled={isLoading}
-            className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-500/50 text-cyan-400 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
+            className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 sm:py-2 bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-500/50 text-cyan-400 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed text-xs sm:text-sm flex-shrink-0"
           >
-            <ArrowPathIcon className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
-            <span className="hidden sm:inline">Refresh All</span>
-            <span className="sm:hidden">Refresh</span>
+            <ArrowPathIcon className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${isLoading ? 'animate-spin' : ''}`} />
+            <span>Refresh</span>
           </button>
-        </div>
-        <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 text-center">
-          <div>
-            <div className="text-2xl sm:text-3xl font-bold text-amber-400">{indicators.length}</div>
-            <div className="text-xs sm:text-sm text-gray-400">Key Metrics</div>
-          </div>
-          <div>
-            <div className="text-2xl sm:text-3xl font-bold text-blue-400">8</div>
-            <div className="text-xs sm:text-sm text-gray-400">Sectors</div>
-          </div>
-          <div>
-            <div className="text-2xl sm:text-3xl font-bold text-green-400">Live</div>
-            <div className="text-xs sm:text-sm text-gray-400">Data Status</div>
-          </div>
-          <div>
-            <div className="text-2xl sm:text-3xl font-bold text-purple-400">NYC</div>
-            <div className="text-xs sm:text-sm text-gray-400">Open Data</div>
-          </div>
         </div>
       </div>
 
-      {/* All Indicators */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5">
-        {indicators.map((indicator) => (
-          <IndicatorCard key={indicator.id} indicator={indicator} />
+      {/* Compact Grid - 2-3 columns */}
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 items-start">
+        {sortedIndicators.map((indicator) => (
+          <CompactMetricCard key={indicator.id} indicator={indicator} />
         ))}
       </div>
 
+      {/* Footer Info */}
+      <div className="text-center text-xs text-gray-500 pt-2">
+        Data from NYC Open Data • Updated regularly • Click metrics for detailed explanations
+      </div>
     </div>
   );
 }

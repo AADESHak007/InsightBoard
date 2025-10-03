@@ -1,5 +1,11 @@
 @import "tailwindcss";
 
+/* Ensure proper scrolling behavior */
+html, body {
+  height: 100%;
+  overflow: hidden;
+}
+
 /* Custom responsive utilities */
 @layer utilities {
   .container-responsive {
