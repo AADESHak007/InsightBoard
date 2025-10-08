@@ -1,0 +1,101 @@
+// prisma/schema.prisma
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Category snapshots - stores complete frontend-ready cached data
+model CategorySnapshot {
+  id          String   @id @default(cuid())
+  category    Category @unique
+  cachedData  Json     // Complete frontend-ready data object (same as memory cache)
+  lastUpdated DateTime @default(now())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@map("category_snapshots")
+}
+
+// Category definitions
+model CategoryData {
+  name        Category @id
+  displayName String
+  description String?
+  color       String?
+  icon        String?
+  order       Int      @default(0)
+  
+  @@map("categories")
+}
+
+// Forum functionality
+model ForumPost {
+  id          String   @id @default(cuid())
+  title       String
+  content     String
+  author      String
+  category    Category
+  upvotes     Int      @default(0)
+  downvotes   Int      @default(0)
+  isActive    Boolean  @default(true)
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relations
+  votes       UserVote[]
+  comments    Comment[]
+  
+  @@map("forum_posts")
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  postId    String
+  content   String
+  author    String
+  isActive  Boolean  @default(true)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  post      ForumPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  
+  @@map("comments")
+}
+
+model UserVote {
+  id       String @id @default(cuid())
+  postId   String
+  userId   String // In a real app, this would reference a User table
+  voteType VoteType
+  
+  post     ForumPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  
+  @@map("user_votes")
+}
+
+
+
+// Enums
+enum Category {
+  ALL
+  PUBLIC_SAFETY
+  TRANSPORTATION
+  HEALTH
+  EDUCATION
+  HOUSING
+  ENVIRONMENT
+  ECONOMY
+  BUSINESS
+}
+
+
+enum VoteType {
+  UP
+  DOWN
+}

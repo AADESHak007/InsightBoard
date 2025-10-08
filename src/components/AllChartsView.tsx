@@ -111,11 +111,11 @@ export default function AllChartsView() {
             <div className="bg-[#111827] border border-[#1f2937] rounded-lg p-4 h-[25rem]">
               <RechartsBarChart
                 data={[
-                  { name: 'Hispanic', value: education.data.demographicBreakdown.hispanic, fill: '#3b82f6' },
-                  { name: 'African American', value: education.data.demographicBreakdown.black, fill: '#3b82f6' },
-                  { name: 'Asian', value: education.data.demographicBreakdown.asian, fill: '#3b82f6' },
-                  { name: 'White', value: education.data.demographicBreakdown.white, fill: '#3b82f6' },
-                  { name: 'Other', value: education.data.demographicBreakdown.other, fill: '#3b82f6' }
+                  { name: 'Hispanic', value: education.data?.demographicBreakdown?.hispanic || 0, fill: '#3b82f6' },
+                  { name: 'African American', value: education.data?.demographicBreakdown?.black || 0, fill: '#3b82f6' },
+                  { name: 'Asian', value: education.data?.demographicBreakdown?.asian || 0, fill: '#3b82f6' },
+                  { name: 'White', value: education.data?.demographicBreakdown?.white || 0, fill: '#3b82f6' },
+                  { name: 'Other', value: education.data?.demographicBreakdown?.other || 0, fill: '#3b82f6' }
                 ]}
                 title="Student Demographics"
                 dataAlert="Source: NYC DOE Demographic Snapshot (2013-2018)"
@@ -133,7 +133,7 @@ export default function AllChartsView() {
                   { name: '2015', value: 1140000 },
                   { name: '2016', value: 1160000 },
                   { name: '2017', value: 1180000 },
-                  { name: '2018', value: education.data.stats.totalEnrollment }
+                  { name: '2018', value: education.data?.stats?.totalEnrollment || 0 }
                 ]}
                 title="Enrollment Trends"
                 dataAlert="Historical enrollment data from NYC DOE"

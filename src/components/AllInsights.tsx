@@ -10,7 +10,7 @@ import { useEnvironmentData } from '@/hooks/useEnvironmentData';
 import { useTransportationData } from '@/hooks/useTransportationData';
 import CompactMetricCard from './CompactMetricCard';
 import { Indicator } from '@/types/indicator';
-import { ArrowPathIcon } from '@heroicons/react/24/outline';
+// import { ArrowPathIcon } from '@heroicons/react/24/outline';
 
 export default function AllInsights() {
   const business = useBusinessData();
@@ -26,16 +26,16 @@ export default function AllInsights() {
                     housing.loading || health.loading || safety.loading || 
                     environment.loading || transportation.loading;
 
-  const handleRefreshAll = () => {
-    business.refetch();
-    acceleration.refetch();
-    education.refetch();
-    housing.refetch();
-    health.refetch();
-    safety.refetch();
-    environment.refetch();
-    transportation.refetch();
-  };
+  // const handleRefreshAll = () => {
+  //   business.refetch();
+  //   acceleration.refetch();
+  //   education.refetch();
+  //   housing.refetch();
+  //   health.refetch();
+  //   safety.refetch();
+  //   environment.refetch();
+  //   transportation.refetch();
+  // };
 
   if (isLoading) {
     return (
@@ -622,14 +622,14 @@ export default function AllInsights() {
               {indicators.length} metrics • Click any metric to expand details
             </p>
           </div>
-          <button
+          {/* <button
             onClick={handleRefreshAll}
             disabled={isLoading}
             className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 sm:py-2 bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-500/50 text-cyan-400 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed text-xs sm:text-sm flex-shrink-0"
           >
             <ArrowPathIcon className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${isLoading ? 'animate-spin' : ''}`} />
             <span>Refresh</span>
-          </button>
+          </button> */}
         </div>
       </div>
 

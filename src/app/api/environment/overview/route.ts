@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { prisma } from '@/lib/database';
 import {
   fetchAirQuality,
   fetchStreetTrees,
@@ -12,19 +13,19 @@ import {
   getPM25YearlyTrend,
   getTreeDiameterDistribution,
 } from '@/lib/api/environmentData';
-import { memoryCache } from '@/lib/cache/memoryCache';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
-    const cacheKey = 'environment-overview';
+    // Check database cache first
+    const cached = await prisma.categorySnapshot.findUnique({
+      where: { category: 'ENVIRONMENT' }
+    });
     
-    // Check cache first
-    const cached = memoryCache.get(cacheKey);
     if (cached) {
-      console.log('✓ Returning cached environment data');
-      return NextResponse.json(cached);
+      console.log('✓ Returning cached environment data from database');
+      return NextResponse.json(cached.cachedData);
     }
 
     console.log('⟳ Fetching environment data from NYC Open Data...');
@@ -64,9 +65,20 @@ export async function GET() {
       lastUpdated: new Date().toISOString(),
     };
 
-    // Cache the response
-    memoryCache.set(cacheKey, response, 86400); // 24 hours
-    console.log('✓ Cached environment data');
+    // Store in database cache
+    await prisma.categorySnapshot.upsert({
+      where: { category: 'ENVIRONMENT' },
+      update: {
+        cachedData: JSON.parse(JSON.stringify(response)),
+        lastUpdated: new Date()
+      },
+      create: {
+        category: 'ENVIRONMENT',
+        cachedData: JSON.parse(JSON.stringify(response)),
+        lastUpdated: new Date()
+      }
+    });
+    console.log('✓ Cached environment data in database');
 
     return NextResponse.json(response);
   } catch (error) {
@@ -77,4 +89,3 @@ export async function GET() {
     );
   }
 }
-

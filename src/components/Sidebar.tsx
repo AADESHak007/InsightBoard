@@ -11,9 +11,11 @@ import {
   HomeIcon,
   BriefcaseIcon,
   Bars3Icon,
-  XMarkIcon
+  XMarkIcon,
+  ChatBubbleLeftRightIcon
 } from '@heroicons/react/24/outline';
 import React, { useState } from 'react';
+import Link from 'next/link';
 
 interface SidebarProps {
   selectedCategory: Category;
@@ -110,6 +112,20 @@ export default function Sidebar({ selectedCategory, onCategoryChange }: SidebarP
               })}
             </div>
           </div>
+        </div>
+
+        {/* Voting Forum */}
+        <div className="px-3 sm:px-4 pb-4">
+          <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2 mt-2 px-2">
+            Community
+          </h3>
+          <Link
+            href="/forum"
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors text-left text-gray-300 hover:bg-[#1a1f2e] hover:text-cyan-400"
+          >
+            <ChatBubbleLeftRightIcon className="w-5 h-5 flex-shrink-0" />
+            <span className="text-sm">Voting Forum</span>
+          </Link>
         </div>
 
         {/* View Mode */}

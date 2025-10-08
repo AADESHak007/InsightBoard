@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { prisma } from '@/lib/database';
 import {
   fetchFHVActive,
   fetchYellowTaxiTrips,
@@ -11,19 +12,19 @@ import {
   getHourlyDemandPattern,
   getPaymentMethodBreakdown,
 } from '@/lib/api/transportationData';
-import { memoryCache } from '@/lib/cache/memoryCache';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
-    const cacheKey = 'transportation-overview';
+    // Check database cache first
+    const cached = await prisma.categorySnapshot.findUnique({
+      where: { category: 'TRANSPORTATION' }
+    });
     
-    // Check cache first
-    const cached = memoryCache.get(cacheKey);
     if (cached) {
-      console.log('✓ Returning cached transportation data');
-      return NextResponse.json(cached);
+      console.log('✓ Returning cached transportation data from database');
+      return NextResponse.json(cached.cachedData);
     }
 
     console.log('⟳ Fetching transportation data from NYC Open Data...');
@@ -66,9 +67,20 @@ export async function GET() {
       lastUpdated: new Date().toISOString(),
     };
 
-    // Cache the response for 24 hours
-    memoryCache.set(cacheKey, response, 86400);
-    console.log('✓ Cached transportation data');
+    // Store in database cache
+    await prisma.categorySnapshot.upsert({
+      where: { category: 'TRANSPORTATION' },
+      update: {
+        cachedData: JSON.parse(JSON.stringify(response)),
+        lastUpdated: new Date()
+      },
+      create: {
+        category: 'TRANSPORTATION',
+        cachedData: JSON.parse(JSON.stringify(response)),
+        lastUpdated: new Date()
+      }
+    });
+    console.log('✓ Cached transportation data in database');
 
     return NextResponse.json(response);
   } catch (error) {
@@ -79,4 +91,3 @@ export async function GET() {
     );
   }
 }
-

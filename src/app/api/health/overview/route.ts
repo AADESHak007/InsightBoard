@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { prisma } from '@/lib/database';
 import {
   fetchRestaurantInspections,
   fetchLeadingCausesOfDeath,
@@ -7,19 +8,19 @@ import {
   calculateMortalityStats,
   calculateSafetyEventsStats,
 } from '@/lib/api/healthData';
-import { memoryCache } from '@/lib/cache/memoryCache';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
-    const cacheKey = 'health-overview';
+    // Check database cache first
+    const cached = await prisma.categorySnapshot.findUnique({
+      where: { category: 'HEALTH' }
+    });
     
-    // Check cache first
-    const cached = memoryCache.get(cacheKey);
     if (cached) {
-      console.log('✓ Returning cached health data');
-      return NextResponse.json(cached);
+      console.log('✓ Returning cached health data from database');
+      return NextResponse.json(cached.cachedData);
     }
 
     console.log('⟳ Fetching health data from NYC Open Data...');
@@ -50,9 +51,20 @@ export async function GET() {
       lastUpdated: new Date().toISOString(),
     };
 
-    // Cache the response
-    memoryCache.set(cacheKey, response, 86400); // 24 hours
-    console.log('✓ Cached health data');
+    // Store in database cache
+    await prisma.categorySnapshot.upsert({
+      where: { category: 'HEALTH' },
+      update: {
+        cachedData: JSON.parse(JSON.stringify(response)),
+        lastUpdated: new Date()
+      },
+      create: {
+        category: 'HEALTH',
+        cachedData: JSON.parse(JSON.stringify(response)),
+        lastUpdated: new Date()
+      }
+    });
+    console.log('✓ Cached health data in database');
 
     return NextResponse.json(response);
   } catch (error) {
@@ -63,4 +75,3 @@ export async function GET() {
     );
   }
 }
-

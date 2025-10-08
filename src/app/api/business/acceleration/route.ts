@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { prisma } from '@/lib/database';
 import {
   fetchBusinessEstablishments,
   calculateJobsStats,
@@ -6,21 +7,19 @@ import {
   getJobsBySector,
   getYearlyJobsTrend,
 } from '@/lib/api/businessAcceleration';
-import { memoryCache } from '@/lib/cache/memoryCache';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
-    const cacheKey = 'business-acceleration';
+    // Note: Business acceleration is not a main category, but we can cache it
+    // Let's check if there's cached data in the database
+    const cached = await prisma.categorySnapshot.findUnique({
+      where: { category: 'BUSINESS' }
+    });
     
-    // Check cache first
-    const cached = memoryCache.get(cacheKey);
-    if (cached) {
-      console.log('✓ Returning cached business acceleration data');
-      return NextResponse.json(cached);
-    }
-
+    // For acceleration data, we'll use memory-based approach or fetch fresh
+    // since it's supplementary data to the main business category
     console.log('⟳ Fetching business acceleration data from NYC Open Data...');
     
     // Fetch business establishments
@@ -48,9 +47,7 @@ export async function GET() {
       lastUpdated: new Date().toISOString(),
     };
 
-    // Cache the response
-    memoryCache.set(cacheKey, response, 86400); // 24 hours
-    console.log('✓ Cached business acceleration data');
+    console.log('✓ Processed business acceleration data');
 
     return NextResponse.json(response);
   } catch (error) {
@@ -61,4 +58,3 @@ export async function GET() {
     );
   }
 }
-

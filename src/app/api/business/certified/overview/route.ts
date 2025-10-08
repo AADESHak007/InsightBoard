@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { prisma } from '@/lib/database';
 import {
   fetchCertifiedBusinesses,
   calculateBusinessStats,
@@ -8,19 +9,19 @@ import {
   getYearlyGrowth,
   calculateGrowthRate,
 } from '@/lib/api/certifiedBusinesses';
-import { memoryCache } from '@/lib/cache/memoryCache';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
-    const cacheKey = 'business-certified-overview';
+    // Check database cache first
+    const cached = await prisma.categorySnapshot.findUnique({
+      where: { category: 'BUSINESS' }
+    });
     
-    // Check cache first (avoids fetching 29MB every time)
-    const cached = memoryCache.get(cacheKey);
     if (cached) {
-      console.log('✓ Returning cached business data');
-      return NextResponse.json(cached);
+      console.log('✓ Returning cached business data from database');
+      return NextResponse.json(cached.cachedData);
     }
 
     console.log('⟳ Fetching fresh business data from NYC Open Data...');
@@ -57,9 +58,20 @@ export async function GET() {
       lastUpdated: new Date().toISOString(),
     };
 
-    // Cache the processed response (much smaller than raw 29MB data)
-    memoryCache.set(cacheKey, response, 86400); // 24 hours
-    console.log('✓ Cached processed business data');
+    // Store in database cache
+    await prisma.categorySnapshot.upsert({
+      where: { category: 'BUSINESS' },
+      update: {
+        cachedData: JSON.parse(JSON.stringify(response)),
+        lastUpdated: new Date()
+      },
+      create: {
+        category: 'BUSINESS',
+        cachedData: JSON.parse(JSON.stringify(response)),
+        lastUpdated: new Date()
+      }
+    });
+    console.log('✓ Cached business data in database');
 
     return NextResponse.json(response);
   } catch (error) {
@@ -70,4 +82,3 @@ export async function GET() {
     );
   }
 }
-

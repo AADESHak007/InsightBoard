@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { prisma } from '@/lib/database';
 import {
   fetchDOBPermits,
   fetchHousingViolations,
@@ -9,19 +10,19 @@ import {
   getYearlyPermitTrends,
   getPermitViolationCorrelation,
 } from '@/lib/api/housingData';
-import { memoryCache } from '@/lib/cache/memoryCache';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
-    const cacheKey = 'housing-overview';
+    // Check database cache first
+    const cached = await prisma.categorySnapshot.findUnique({
+      where: { category: 'HOUSING' }
+    });
     
-    // Check cache first
-    const cached = memoryCache.get(cacheKey);
     if (cached) {
-      console.log('✓ Returning cached housing data');
-      return NextResponse.json(cached);
+      console.log('✓ Returning cached housing data from database');
+      return NextResponse.json(cached.cachedData);
     }
 
     console.log('⟳ Fetching housing data from NYC Open Data...');
@@ -56,9 +57,20 @@ export async function GET() {
       lastUpdated: new Date().toISOString(),
     };
 
-    // Cache the response
-    memoryCache.set(cacheKey, response, 86400); // 24 hours
-    console.log('✓ Cached housing data');
+    // Store in database cache
+    await prisma.categorySnapshot.upsert({
+      where: { category: 'HOUSING' },
+      update: {
+        cachedData: JSON.parse(JSON.stringify(response)),
+        lastUpdated: new Date()
+      },
+      create: {
+        category: 'HOUSING',
+        cachedData: JSON.parse(JSON.stringify(response)),
+        lastUpdated: new Date()
+      }
+    });
+    console.log('✓ Cached housing data in database');
 
     return NextResponse.json(response);
   } catch (error) {

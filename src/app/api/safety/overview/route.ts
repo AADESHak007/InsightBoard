@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { prisma } from '@/lib/database';
 import {
   fetchNYPDComplaints,
   fetchVehicleCollisions,
@@ -6,19 +7,19 @@ import {
   calculateCollisionStats,
   getYearlyCrimeTrends,
 } from '@/lib/api/publicSafetyData';
-import { memoryCache } from '@/lib/cache/memoryCache';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
-    const cacheKey = 'public-safety-overview';
+    // Check database cache first
+    const cached = await prisma.categorySnapshot.findUnique({
+      where: { category: 'PUBLIC_SAFETY' }
+    });
     
-    // Check cache first
-    const cached = memoryCache.get(cacheKey);
     if (cached) {
-      console.log('✓ Returning cached public safety data');
-      return NextResponse.json(cached);
+      console.log('✓ Returning cached public safety data from database');
+      return NextResponse.json(cached.cachedData);
     }
 
     console.log('⟳ Fetching public safety data from NYC Open Data...');
@@ -48,9 +49,20 @@ export async function GET() {
       lastUpdated: new Date().toISOString(),
     };
 
-    // Cache the response
-    memoryCache.set(cacheKey, response, 86400); // 24 hours
-    console.log('✓ Cached public safety data');
+    // Store in database cache
+    await prisma.categorySnapshot.upsert({
+      where: { category: 'PUBLIC_SAFETY' },
+      update: {
+        cachedData: JSON.parse(JSON.stringify(response)),
+        lastUpdated: new Date()
+      },
+      create: {
+        category: 'PUBLIC_SAFETY',
+        cachedData: JSON.parse(JSON.stringify(response)),
+        lastUpdated: new Date()
+      }
+    });
+    console.log('✓ Cached public safety data in database');
 
     return NextResponse.json(response);
   } catch (error) {
@@ -61,4 +73,3 @@ export async function GET() {
     );
   }
 }
-
