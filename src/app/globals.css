@@ -3,7 +3,70 @@
 /* Ensure proper scrolling behavior */
 html, body {
   height: 100%;
+}
+
+/* Only hide overflow on the main dashboard page, not forum */
+.dashboard-container {
   overflow: hidden;
+}
+
+/* Ensure forum page can scroll properly */
+.forum-page {
+  overflow-y: auto;
+  height: 100vh;
+}
+
+/* Line clamp utilities for text truncation */
+.line-clamp-1 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+}
+
+.line-clamp-2 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+/* Fix z-index layering for map and sidebar */
+.leaflet-container {
+  z-index: 1 !important;
+}
+
+.leaflet-control-container {
+  z-index: 2 !important;
+}
+
+.leaflet-popup-pane {
+  z-index: 1000 !important;
+}
+
+.leaflet-popup {
+  z-index: 1001 !important;
+}
+
+.custom-popup .leaflet-popup-content-wrapper {
+  background: transparent !important;
+  box-shadow: none !important;
+  border-radius: 0.75rem !important;
+}
+
+.custom-popup .leaflet-popup-content {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* Ensure sidebar stays above map */
+.sidebar-container {
+  z-index: 50 !important;
+}
+
+/* Ensure hamburger menu stays above everything */
+.hamburger-menu {
+  z-index: 100 !important;
 }
 
 /* Custom responsive utilities */

@@ -92,29 +92,12 @@ export default function BoroughMap({ metric, data }: BoroughMapProps) {
     const boroughName = feature.properties.name;
     const value = data[boroughName] || 0;
 
-    // Check if layer has bindTooltip method
-    if ('bindTooltip' in layer && typeof layer.bindTooltip === 'function') {
-      layer.bindTooltip(
-        `<div class="bg-gray-900 text-white p-3 rounded-lg shadow-lg border border-gray-700">
-           <div class="font-bold text-lg mb-1">${boroughName}</div>
-           <div class="text-cyan-400 font-semibold">${value.toLocaleString()}</div>
-           <div class="text-xs text-gray-400">${metric}</div>
-         </div>`,
-        {
-          permanent: false,
-          direction: 'top',
-          className: 'custom-tooltip'
-        }
-      );
-    }
-
-    // Check if layer has bindPopup method
+    // Only bind popup, remove tooltip to prevent multiple info boxes
     if ('bindPopup' in layer && typeof layer.bindPopup === 'function') {
       layer.bindPopup(
         `<div class="bg-gray-900 text-white p-4 rounded-xl shadow-xl border border-gray-700 min-w-[200px]">
-           <div class="flex items-center justify-between mb-3">
+           <div class="mb-3">
              <h3 class="font-bold text-xl">${boroughName}</h3>
-             <div class="w-3 h-3 bg-cyan-500 rounded-full"></div>
            </div>
            <div class="space-y-2">
              <div class="flex justify-between items-center">
@@ -129,7 +112,13 @@ export default function BoroughMap({ metric, data }: BoroughMapProps) {
                ${maxValue > 0 ? ((value / maxValue) * 100).toFixed(1) : 0}% of highest value
              </div>
            </div>
-         </div>`
+         </div>`,
+        {
+          closeButton: true,
+          autoClose: false,
+          closeOnClick: false,
+          className: 'custom-popup'
+        }
       );
     }
 
@@ -179,12 +168,13 @@ export default function BoroughMap({ metric, data }: BoroughMapProps) {
   }
 
   return (
-    <div className="w-full h-[600px] rounded-lg overflow-hidden border-2 border-gray-200">
+    <div className="w-full h-[600px] rounded-lg overflow-hidden border-2 border-gray-200 relative" style={{ zIndex: 1 }}>
       <MapContainer
         center={center}
         zoom={zoom}
-        style={{ height: '100%', width: '100%' }}
+        style={{ height: '100%', width: '100%', zIndex: 1 }}
         scrollWheelZoom={true}
+        closePopupOnClick={false}
       >
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'

@@ -232,10 +232,10 @@ export default function ForumPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0e1a] text-white">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-pink-500/10 border-b border-blue-500/30 sticky top-0 z-10">
-        <div className="max-w-6xl mx-auto px-4 py-4">
+    <div className="h-screen bg-[#0a0e1a] text-white flex flex-col">
+      {/* Fixed Header */}
+      <div className="bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-pink-500/10 border-b border-blue-500/30 flex-shrink-0">
+        <div className="max-w-6xl mx-auto px-4 py-3">
           <div className="flex items-center justify-between mb-2">
           <Link 
             href="/"
@@ -247,82 +247,89 @@ export default function ForumPage() {
             
             <button
               onClick={() => setShowCreateModal(true)}
-              className="flex items-center gap-2 px-4 py-2 bg-cyan-500 hover:bg-cyan-600 rounded-lg transition-colors text-sm font-medium"
+              className="flex items-center gap-2 px-3 py-1.5 bg-cyan-500 hover:bg-cyan-600 rounded-lg transition-colors text-sm font-medium"
             >
               <PlusIcon className="w-4 h-4" />
               New Post
             </button>
           </div>
           
-          <h1 className="text-xl md:text-2xl font-bold flex items-center gap-2">
-            <ChatBubbleLeftRightIcon className="w-6 h-6 text-cyan-400" />
+          <h1 className="text-lg md:text-xl font-bold flex items-center gap-2">
+            <ChatBubbleLeftRightIcon className="w-5 h-5 text-cyan-400" />
             NYC Community Forum
           </h1>
-          <p className="text-sm text-gray-400 mt-1">
+          <p className="text-xs text-gray-400 mt-1">
             Share data suggestions and vote on what matters most to you
           </p>
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto px-4 py-6">
-        {/* Filters */}
-        <div className="flex flex-col md:flex-row gap-4 mb-6">
-          {/* Category Filter */}
-          <div className="flex-1">
-            <div className="flex items-center gap-2 mb-2">
-              <FunnelIcon className="w-4 h-4 text-gray-400" />
-              <span className="text-sm text-gray-400">Filter by Category</span>
+      {/* Fixed Filters */}
+      <div className="bg-[#0f1419] border-b border-[#1f2937] flex-shrink-0">
+        <div className="max-w-6xl mx-auto px-4 py-3">
+          {/* Filters */}
+          <div className="flex flex-col md:flex-row gap-3">
+            {/* Category Filter */}
+            <div className="flex-1">
+              <div className="flex items-center gap-2 mb-1">
+                <FunnelIcon className="w-3 h-3 text-gray-400" />
+                <span className="text-xs text-gray-400">Filter by Category</span>
+              </div>
+              <div className="flex flex-wrap gap-1">
+                {CATEGORIES.map(cat => (
+                  <button
+                    key={cat.value}
+                    onClick={() => setSelectedCategory(cat.value)}
+                    className={`px-2 py-1 rounded text-xs font-medium transition-colors ${
+                      selectedCategory === cat.value
+                        ? 'bg-[#1e293b] text-white border border-[#334155]'
+                        : 'bg-[#111827] text-gray-400 hover:text-white border border-[#1f2937] hover:border-[#334155]'
+                    }`}
+                  >
+                    {cat.label}
+                  </button>
+                ))}
+              </div>
             </div>
-            <div className="flex flex-wrap gap-2">
-              {CATEGORIES.map(cat => (
+
+            {/* Sort Options */}
+            <div>
+              <div className="flex items-center gap-2 mb-1">
+                <span className="text-xs text-gray-400">Sort by</span>
+              </div>
+              <div className="flex gap-1">
                 <button
-                  key={cat.value}
-                  onClick={() => setSelectedCategory(cat.value)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                    selectedCategory === cat.value
-                      ? 'bg-[#1e293b] text-white border border-[#334155]'
-                      : 'bg-[#111827] text-gray-400 hover:text-white border border-[#1f2937] hover:border-[#334155]'
+                  onClick={() => setSortBy('upvotes')}
+                  className={`flex items-center gap-1 px-2 py-1 rounded text-xs font-medium transition-colors ${
+                    sortBy === 'upvotes'
+                      ? 'bg-orange-500 text-white'
+                      : 'bg-[#111827] text-gray-400 hover:text-white border border-[#1f2937]'
                   }`}
                 >
-                  {cat.label}
+                  <FireIcon className="w-3 h-3" />
+                  Hot
                 </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Sort Options */}
-          <div>
-            <div className="flex items-center gap-2 mb-2">
-              <span className="text-sm text-gray-400">Sort by</span>
-            </div>
-            <div className="flex gap-2">
-              <button
-                onClick={() => setSortBy('upvotes')}
-                className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                  sortBy === 'upvotes'
-                    ? 'bg-orange-500 text-white'
-                    : 'bg-[#111827] text-gray-400 hover:text-white border border-[#1f2937]'
-                }`}
-              >
-                <FireIcon className="w-4 h-4" />
-                Hot
-              </button>
-              <button
-                onClick={() => setSortBy('createdAt')}
-                className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                  sortBy === 'createdAt'
-                    ? 'bg-blue-500 text-white'
-                    : 'bg-[#111827] text-gray-400 hover:text-white border border-[#1f2937]'
-                }`}
-              >
-                <ClockIcon className="w-4 h-4" />
-                New
-              </button>
+                <button
+                  onClick={() => setSortBy('createdAt')}
+                  className={`flex items-center gap-1 px-2 py-1 rounded text-xs font-medium transition-colors ${
+                    sortBy === 'createdAt'
+                      ? 'bg-blue-500 text-white'
+                      : 'bg-[#111827] text-gray-400 hover:text-white border border-[#1f2937]'
+                  }`}
+                >
+                  <ClockIcon className="w-3 h-3" />
+                  New
+                </button>
+              </div>
             </div>
           </div>
         </div>
+      </div>
 
-        {/* Posts List */}
+      {/* Scrollable Posts Section */}
+      <div className="flex-1 overflow-y-auto">
+        <div className="max-w-6xl mx-auto px-4 py-4">
+          {/* Posts List */}
         {loading ? (
           <div className="text-center py-12">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-500 mx-auto"></div>
@@ -334,28 +341,28 @@ export default function ForumPage() {
             <p className="text-gray-400">No posts yet. Be the first to share your idea!</p>
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-2">
             {posts.map(post => (
               <div
                 key={post.id}
-                className="bg-[#111827] border border-[#1f2937] rounded-lg p-4 hover:border-cyan-500/30 transition-colors"
+                className="bg-[#111827] border border-[#1f2937] rounded-lg p-3 hover:border-cyan-500/30 transition-colors"
               >
-                <div className="flex gap-4">
+                <div className="flex gap-3">
                   {/* Vote Section */}
-                  <div className="flex flex-col items-center gap-1 min-w-[48px]">
+                  <div className="flex flex-col items-center gap-0.5 min-w-[36px]">
                     <button
                       onClick={() => handleVote(post.id, 'UP')}
                       disabled={votingStates[post.id]}
-                      className={`p-1.5 rounded transition-all duration-200 text-gray-400 hover:bg-green-500/10 hover:text-green-400 hover:scale-105 ${votingStates[post.id] ? 'opacity-70 cursor-not-allowed' : 'cursor-pointer'}`}
+                      className={`p-1 rounded transition-all duration-200 text-gray-400 hover:bg-green-500/10 hover:text-green-400 hover:scale-105 ${votingStates[post.id] ? 'opacity-70 cursor-not-allowed' : 'cursor-pointer'}`}
                     >
                       {votingStates[post.id] ? (
-                        <ArrowPathIcon className="w-5 h-5 animate-spin text-cyan-400" />
+                        <ArrowPathIcon className="w-4 h-4 animate-spin text-cyan-400" />
                       ) : (
-                        <ArrowUpIcon className="w-5 h-5" />
+                        <ArrowUpIcon className="w-4 h-4" />
                       )}
                     </button>
                     
-                    <span className={`text-sm font-bold transition-colors duration-200 ${
+                    <span className={`text-xs font-bold transition-colors duration-200 ${
                       (optimisticVotes[post.id]?.netVotes ?? post.netVotes) > 0 ? 'text-green-400' : 
                       (optimisticVotes[post.id]?.netVotes ?? post.netVotes) < 0 ? 'text-red-400' : 
                       'text-gray-400'
@@ -366,20 +373,20 @@ export default function ForumPage() {
                     <button
                       onClick={() => handleVote(post.id, 'DOWN')}
                       disabled={votingStates[post.id]}
-                      className={`p-1.5 rounded transition-all duration-200 text-gray-400 hover:bg-red-500/10 hover:text-red-400 hover:scale-105 ${votingStates[post.id] ? 'opacity-70 cursor-not-allowed' : 'cursor-pointer'}`}
+                      className={`p-1 rounded transition-all duration-200 text-gray-400 hover:bg-red-500/10 hover:text-red-400 hover:scale-105 ${votingStates[post.id] ? 'opacity-70 cursor-not-allowed' : 'cursor-pointer'}`}
                     >
                       {votingStates[post.id] ? (
-                        <ArrowPathIcon className="w-5 h-5 animate-spin text-cyan-400" />
+                        <ArrowPathIcon className="w-4 h-4 animate-spin text-cyan-400" />
                       ) : (
-                        <ArrowDownIcon className="w-5 h-5" />
+                        <ArrowDownIcon className="w-4 h-4" />
                       )}
                     </button>
                   </div>
 
                   {/* Content Section */}
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className={`px-2 py-0.5 rounded text-xs font-medium bg-${getCategoryColor(post.category)}-500/20 text-${getCategoryColor(post.category)}-400 border border-${getCategoryColor(post.category)}-500/30`}>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className={`px-1.5 py-0.5 rounded text-xs font-medium bg-${getCategoryColor(post.category)}-500/20 text-${getCategoryColor(post.category)}-400 border border-${getCategoryColor(post.category)}-500/30`}>
                         {CATEGORIES.find(c => c.value === post.category)?.label}
                       </span>
                       <span className="text-xs text-gray-500">
@@ -391,15 +398,15 @@ export default function ForumPage() {
                       </span>
                     </div>
                     
-                    <h3 className="text-lg font-semibold text-white mb-2">
+                    <h3 className="text-sm font-semibold text-white mb-1 line-clamp-1">
                       {post.title}
                     </h3>
                     
-                    <p className="text-sm text-gray-300 leading-relaxed">
+                    <p className="text-xs text-gray-300 leading-relaxed line-clamp-2 mb-2">
                       {post.content}
                     </p>
                     
-                    <div className="flex items-center gap-4 mt-3 text-xs text-gray-500">
+                    <div className="flex items-center gap-3 text-xs text-gray-500">
                       <span>{post._count.comments} comments</span>
                       <span>•</span>
                       <span className={optimisticVotes[post.id] ? 'text-cyan-400' : ''}>
@@ -416,6 +423,7 @@ export default function ForumPage() {
             ))}
           </div>
         )}
+        </div>
       </div>
 
       {/* Create Post Modal */}

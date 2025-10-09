@@ -51,7 +51,7 @@ export default function Sidebar({ selectedCategory, onCategoryChange }: SidebarP
       {!isMobileMenuOpen && (
         <button
           onClick={toggleMobileMenu}
-          className="lg:hidden fixed top-4 left-4 z-50 p-2 bg-[#111827] border border-[#1f2937] rounded-lg text-white hover:bg-[#1a1f2e] transition-all duration-300"
+          className="hamburger-menu lg:hidden fixed top-4 left-4 p-2 bg-[#111827] border border-[#1f2937] rounded-lg text-white hover:bg-[#1a1f2e] transition-all duration-300"
         >
           <Bars3Icon className="w-6 h-6" />
         </button>
@@ -59,7 +59,7 @@ export default function Sidebar({ selectedCategory, onCategoryChange }: SidebarP
 
       {/* Sidebar */}
       <div className={`
-        w-64 h-screen bg-[#0f1419] border-r border-[#1f2937] flex flex-col fixed left-0 top-0 overflow-hidden z-40
+        sidebar-container w-64 h-screen bg-[#0f1419] border-r border-[#1f2937] flex flex-col fixed left-0 top-0 overflow-hidden
         transform transition-transform duration-300 ease-in-out
         ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}
         lg:translate-x-0
