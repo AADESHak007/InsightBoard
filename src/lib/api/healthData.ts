@@ -100,6 +100,17 @@ export interface SafetyEventsStats {
   };
 }
 
+export interface BoroughHealthData {
+  borough: string;
+  restaurantInspections: number;
+  gradeA: number;
+  gradeB: number;
+  gradeC: number;
+  criticalViolations: number;
+  safetyEvents: number;
+  avgGradeScore: number;
+}
+
 /**
  * Fetch restaurant inspections
  */
@@ -366,5 +377,104 @@ export function calculateSafetyEventsStats(events: SafetyEvent[]): SafetyEventsS
     eventsByBorough: boroughData,
     outreachExpansion,
   };
+}
+
+/**
+ * Get borough breakdown for health data
+ */
+export function getBoroughBreakdown(
+  inspections: RestaurantInspection[],
+  safetyEvents: SafetyEvent[]
+): BoroughHealthData[] {
+  const boroughMap: Record<string, {
+    restaurantInspections: number;
+    gradeA: number;
+    gradeB: number;
+    gradeC: number;
+    criticalViolations: number;
+    safetyEvents: number;
+    totalScore: number;
+    scoreCount: number;
+  }> = {};
+
+  // Normalize borough names
+  const normalizeBoroughName = (boro?: string): string => {
+    if (!boro) return 'Unknown';
+    const normalized = boro.trim().toUpperCase();
+    if (normalized === 'MANHATTAN' || normalized === '1') return 'Manhattan';
+    if (normalized === 'BRONX' || normalized === '2') return 'Bronx';
+    if (normalized === 'BROOKLYN' || normalized === '3') return 'Brooklyn';
+    if (normalized === 'QUEENS' || normalized === '4') return 'Queens';
+    if (normalized === 'STATEN ISLAND' || normalized === '5') return 'Staten Island';
+    return boro;
+  };
+
+  // Process restaurant inspections
+  inspections.forEach(inspection => {
+    const borough = normalizeBoroughName(inspection.boro);
+    if (!boroughMap[borough]) {
+      boroughMap[borough] = {
+        restaurantInspections: 0,
+        gradeA: 0,
+        gradeB: 0,
+        gradeC: 0,
+        criticalViolations: 0,
+        safetyEvents: 0,
+        totalScore: 0,
+        scoreCount: 0,
+      };
+    }
+
+    boroughMap[borough].restaurantInspections++;
+
+    const grade = inspection.grade?.toUpperCase();
+    if (grade === 'A') boroughMap[borough].gradeA++;
+    else if (grade === 'B') boroughMap[borough].gradeB++;
+    else if (grade === 'C') boroughMap[borough].gradeC++;
+
+    if (inspection.critical_flag === 'Critical') {
+      boroughMap[borough].criticalViolations++;
+    }
+
+    const score = parseFloat(inspection.score || '0');
+    if (score > 0) {
+      boroughMap[borough].totalScore += score;
+      boroughMap[borough].scoreCount++;
+    }
+  });
+
+  // Process safety events
+  safetyEvents.forEach(event => {
+    const borough = normalizeBoroughName(event.borough);
+    if (!boroughMap[borough]) {
+      boroughMap[borough] = {
+        restaurantInspections: 0,
+        gradeA: 0,
+        gradeB: 0,
+        gradeC: 0,
+        criticalViolations: 0,
+        safetyEvents: 0,
+        totalScore: 0,
+        scoreCount: 0,
+      };
+    }
+
+    boroughMap[borough].safetyEvents++;
+  });
+
+  // Convert to array and calculate averages
+  return Object.entries(boroughMap)
+    .filter(([borough]) => borough !== 'Unknown')
+    .map(([borough, data]) => ({
+      borough,
+      restaurantInspections: data.restaurantInspections,
+      gradeA: data.gradeA,
+      gradeB: data.gradeB,
+      gradeC: data.gradeC,
+      criticalViolations: data.criticalViolations,
+      safetyEvents: data.safetyEvents,
+      avgGradeScore: data.scoreCount > 0 ? data.totalScore / data.scoreCount : 0,
+    }))
+    .sort((a, b) => a.borough.localeCompare(b.borough));
 }
 

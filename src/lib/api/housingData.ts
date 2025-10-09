@@ -102,6 +102,19 @@ export interface AffordableHousingStats {
   programGroupBreakdown: Record<string, number>;
 }
 
+export interface BoroughHousingData {
+  borough: string;
+  totalPermits: number;
+  newBuilding: number;
+  alteration: number;
+  demolition: number;
+  totalViolations: number;
+  openViolations: number;
+  classA: number;
+  classB: number;
+  classC: number;
+}
+
 /**
  * Fetch DOB permits (limited to recent data for performance)
  */
@@ -368,5 +381,112 @@ export function calculateAffordableHousingStats(records: HousingNewYorkRecord[])
     yearlyTrend,
     programGroupBreakdown: programGroupData,
   };
+}
+
+/**
+ * Get borough breakdown for housing data
+ */
+export function getBoroughBreakdown(
+  permits: DOBPermit[],
+  violations: HousingViolation[]
+): BoroughHousingData[] {
+  const boroughMap: Record<string, {
+    totalPermits: number;
+    newBuilding: number;
+    alteration: number;
+    demolition: number;
+    totalViolations: number;
+    openViolations: number;
+    classA: number;
+    classB: number;
+    classC: number;
+  }> = {};
+
+  // Normalize borough names
+  const normalizeBoroughName = (boro?: string): string => {
+    if (!boro) return 'Unknown';
+    const normalized = boro.trim().toUpperCase();
+    if (normalized === 'MANHATTAN' || normalized === '1') return 'Manhattan';
+    if (normalized === 'BRONX' || normalized === '2') return 'Bronx';
+    if (normalized === 'BROOKLYN' || normalized === '3') return 'Brooklyn';
+    if (normalized === 'QUEENS' || normalized === '4') return 'Queens';
+    if (normalized === 'STATEN ISLAND' || normalized === '5') return 'Staten Island';
+    return boro;
+  };
+
+  // Process permits
+  permits.forEach(permit => {
+    const borough = normalizeBoroughName(permit.borough);
+    if (!boroughMap[borough]) {
+      boroughMap[borough] = {
+        totalPermits: 0,
+        newBuilding: 0,
+        alteration: 0,
+        demolition: 0,
+        totalViolations: 0,
+        openViolations: 0,
+        classA: 0,
+        classB: 0,
+        classC: 0,
+      };
+    }
+
+    boroughMap[borough].totalPermits++;
+
+    const jobType = permit.job_type?.toUpperCase();
+    if (jobType === 'NB' || jobType === 'NEW BUILDING') {
+      boroughMap[borough].newBuilding++;
+    } else if (jobType === 'A1' || jobType === 'A2' || jobType === 'A3' || jobType?.includes('ALTERATION')) {
+      boroughMap[borough].alteration++;
+    } else if (jobType === 'DM' || jobType?.includes('DEMOLITION')) {
+      boroughMap[borough].demolition++;
+    }
+  });
+
+  // Process violations
+  violations.forEach(violation => {
+    const borough = normalizeBoroughName(violation.boro);
+    if (!boroughMap[borough]) {
+      boroughMap[borough] = {
+        totalPermits: 0,
+        newBuilding: 0,
+        alteration: 0,
+        demolition: 0,
+        totalViolations: 0,
+        openViolations: 0,
+        classA: 0,
+        classB: 0,
+        classC: 0,
+      };
+    }
+
+    boroughMap[borough].totalViolations++;
+
+    if (violation.violationstatus?.toUpperCase() === 'OPEN') {
+      boroughMap[borough].openViolations++;
+    }
+
+    const violationClass = violation.class?.toUpperCase();
+    if (violationClass === 'A') boroughMap[borough].classA++;
+    else if (violationClass === 'B') boroughMap[borough].classB++;
+    else if (violationClass === 'C') boroughMap[borough].classC++;
+  });
+
+  // Convert to array
+  return Object.entries(boroughMap)
+    .filter(([borough]) => borough !== 'Unknown')
+    .map(([borough, data]) => ({
+      borough,
+      totalPermits: data.totalPermits,
+      newBuilding: data.newBuilding,
+      alteration: data.alteration,
+      demolition: data.demolition,
+      totalViolations: data.totalViolations,
+      openViolations: data.openViolations,
+      classA: data.classA,
+      classB: data.classB,
+      classC: data.classC,
+    }))
+    .sort((a, b) => a.borough.localeCompare(b.borough));
 }
 

@@ -20,6 +20,7 @@ import TransportationInsights from '@/components/TransportationInsights';
 import TransportationChartsView from '@/components/TransportationChartsView';
 import AllInsights from '@/components/AllInsights';
 import AllChartsView from '@/components/AllChartsView';
+import CategoryMapView from '@/components/CategoryMapView';
 import { dummyIndicators } from '@/data/dummyData';
 import { Category, ViewMode } from '@/types/indicator';
 import { 
@@ -219,10 +220,7 @@ export default function Home() {
         )}
 
         {viewMode === 'map' && (
-          <div className="bg-[#111827] border border-[#1f2937] rounded-lg p-12 text-center">
-            <MapIcon className="w-16 h-16 text-gray-600 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-white mb-2">Map View Coming Soon</h3>
-          </div>
+          <CategoryMapView category={selectedCategory} />
         )}
 
         {filteredIndicators.length === 0 && (

@@ -1,4 +1,4 @@
-import { Category, Trend, TargetCondition } from '@prisma/client';
+import { Category } from '@prisma/client';
 import {
   fetchAirQuality,
   fetchStreetTrees,
@@ -14,6 +14,17 @@ import {
   type GHGEmissionsRecord,
   type DSNYTonnageRecord,
 } from '@/lib/api/environmentData';
+
+enum Trend {
+  UP = 'UP',
+  DOWN = 'DOWN',
+  STABLE = 'STABLE'
+}
+
+enum TargetCondition {
+  LESS_THAN_OR_EQUAL = 'LESS_THAN_OR_EQUAL',
+  GREATER_THAN_OR_EQUAL = 'GREATER_THAN_OR_EQUAL'
+}
 
 export async function fetchEnvironmentData(limit: number = 10000) {
   const [airQuality, trees, ghgEmissions, dsnyTonnage] = await Promise.all([

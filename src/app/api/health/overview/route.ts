@@ -7,6 +7,7 @@ import {
   calculateRestaurantStats,
   calculateMortalityStats,
   calculateSafetyEventsStats,
+  getBoroughBreakdown,
 } from '@/lib/api/healthData';
 
 export const dynamic = 'force-dynamic';
@@ -43,11 +44,13 @@ export async function GET() {
     const restaurantStats = calculateRestaurantStats(inspections);
     const mortalityStats = calculateMortalityStats(deathRecords);
     const safetyEventsStats = calculateSafetyEventsStats(safetyEvents);
+    const boroughBreakdown = getBoroughBreakdown(inspections, safetyEvents);
 
     const response = {
       restaurantStats,
       mortalityStats,
       safetyEventsStats,
+      boroughBreakdown,
       lastUpdated: new Date().toISOString(),
     };
 

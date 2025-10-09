@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/database';
-import { VoteType } from '@prisma/client';
+import type { Prisma, VoteType } from '@prisma/client';
 
 // POST - Vote on a forum post (with atomic transactions)
 export async function POST(
@@ -35,7 +35,7 @@ export async function POST(
     }
 
     // Use a transaction with timeout and retry logic
-    const result = await prisma.$transaction(async (tx) => {
+    const result = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       // Check if post exists
       const post = await tx.forumPost.findUnique({
         where: { id }
@@ -86,8 +86,8 @@ export async function POST(
       }
     });
 
-    const upvotes = finalPost?.votes.filter(vote => vote.voteType === 'UP').length || 0;
-    const downvotes = finalPost?.votes.filter(vote => vote.voteType === 'DOWN').length || 0;
+    const upvotes = finalPost?.votes.filter((vote: { voteType: VoteType }) => vote.voteType === 'UP').length || 0;
+    const downvotes = finalPost?.votes.filter((vote: { voteType: VoteType }) => vote.voteType === 'DOWN').length || 0;
 
       return NextResponse.json({
         success: true,

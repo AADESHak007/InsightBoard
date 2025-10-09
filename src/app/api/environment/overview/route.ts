@@ -12,6 +12,7 @@ import {
   getYearlyAirQualityTrends,
   getPM25YearlyTrend,
   getTreeDiameterDistribution,
+  getBoroughBreakdown,
 } from '@/lib/api/environmentData';
 
 export const dynamic = 'force-dynamic';
@@ -53,6 +54,7 @@ export async function GET() {
     const airQualityTrends = getYearlyAirQualityTrends(airQuality);
     const pm25YearlyTrend = getPM25YearlyTrend(airQuality);
     const treeDiameterDistribution = getTreeDiameterDistribution(trees);
+    const boroughBreakdown = getBoroughBreakdown(trees, dsnyTonnage);
 
     const response = {
       airQualityStats,
@@ -62,6 +64,7 @@ export async function GET() {
       airQualityTrends,
       pm25YearlyTrend,
       treeDiameterDistribution,
+      boroughBreakdown,
       lastUpdated: new Date().toISOString(),
     };
 

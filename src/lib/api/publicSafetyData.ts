@@ -59,6 +59,19 @@ export interface CollisionStats {
   topCauses: Array<{ cause: string; count: number; percentage: number }>;
 }
 
+export interface BoroughSafetyData {
+  borough: string;
+  totalCrimes: number;
+  felonies: number;
+  misdemeanors: number;
+  violations: number;
+  totalCollisions: number;
+  totalInjured: number;
+  totalKilled: number;
+  pedestriansInjured: number;
+  cyclistsInjured: number;
+}
+
 /**
  * Fetch NYPD complaints
  */
@@ -216,5 +229,109 @@ export function getYearlyCrimeTrends(complaints: CrimeComplaint[]): Array<{ year
   }
 
   return trends;
+}
+
+/**
+ * Get borough breakdown for safety data
+ */
+export function getBoroughBreakdown(
+  complaints: CrimeComplaint[],
+  collisions: VehicleCollision[]
+): BoroughSafetyData[] {
+  const boroughMap: Record<string, {
+    totalCrimes: number;
+    felonies: number;
+    misdemeanors: number;
+    violations: number;
+    totalCollisions: number;
+    totalInjured: number;
+    totalKilled: number;
+    pedestriansInjured: number;
+    cyclistsInjured: number;
+  }> = {};
+
+  // Normalize borough names
+  const normalizeBoroughName = (boro?: string): string => {
+    if (!boro) return 'Unknown';
+    const normalized = boro.trim().toUpperCase();
+    if (normalized === 'MANHATTAN' || normalized === '1') return 'Manhattan';
+    if (normalized === 'BRONX' || normalized === '2') return 'Bronx';
+    if (normalized === 'BROOKLYN' || normalized === '3') return 'Brooklyn';
+    if (normalized === 'QUEENS' || normalized === '4') return 'Queens';
+    if (normalized === 'STATEN ISLAND' || normalized === '5') return 'Staten Island';
+    return boro;
+  };
+
+  // Process crime complaints
+  complaints.forEach(complaint => {
+    const borough = normalizeBoroughName(complaint.boro_nm);
+    if (!boroughMap[borough]) {
+      boroughMap[borough] = {
+        totalCrimes: 0,
+        felonies: 0,
+        misdemeanors: 0,
+        violations: 0,
+        totalCollisions: 0,
+        totalInjured: 0,
+        totalKilled: 0,
+        pedestriansInjured: 0,
+        cyclistsInjured: 0,
+      };
+    }
+
+    boroughMap[borough].totalCrimes++;
+
+    const category = complaint.law_cat_cd?.toUpperCase();
+    if (category === 'FELONY') boroughMap[borough].felonies++;
+    else if (category === 'MISDEMEANOR') boroughMap[borough].misdemeanors++;
+    else if (category === 'VIOLATION') boroughMap[borough].violations++;
+  });
+
+  // Process collisions
+  collisions.forEach(collision => {
+    const borough = normalizeBoroughName(collision.borough);
+    if (!boroughMap[borough]) {
+      boroughMap[borough] = {
+        totalCrimes: 0,
+        felonies: 0,
+        misdemeanors: 0,
+        violations: 0,
+        totalCollisions: 0,
+        totalInjured: 0,
+        totalKilled: 0,
+        pedestriansInjured: 0,
+        cyclistsInjured: 0,
+      };
+    }
+
+    boroughMap[borough].totalCollisions++;
+
+    const injured = parseInt(collision.number_of_persons_injured || '0', 10);
+    const killed = parseInt(collision.number_of_persons_killed || '0', 10);
+    const pedestriansInjured = parseInt(collision.number_of_pedestrians_injured || '0', 10);
+    const cyclistsInjured = parseInt(collision.number_of_cyclist_injured || '0', 10);
+
+    boroughMap[borough].totalInjured += injured;
+    boroughMap[borough].totalKilled += killed;
+    boroughMap[borough].pedestriansInjured += pedestriansInjured;
+    boroughMap[borough].cyclistsInjured += cyclistsInjured;
+  });
+
+  // Convert to array
+  return Object.entries(boroughMap)
+    .filter(([borough]) => borough !== 'Unknown')
+    .map(([borough, data]) => ({
+      borough,
+      totalCrimes: data.totalCrimes,
+      felonies: data.felonies,
+      misdemeanors: data.misdemeanors,
+      violations: data.violations,
+      totalCollisions: data.totalCollisions,
+      totalInjured: data.totalInjured,
+      totalKilled: data.totalKilled,
+      pedestriansInjured: data.pedestriansInjured,
+      cyclistsInjured: data.cyclistsInjured,
+    }))
+    .sort((a, b) => a.borough.localeCompare(b.borough));
 }
 

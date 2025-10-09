@@ -11,6 +11,7 @@ import {
   calculateMTAPerformanceStats,
   getHourlyDemandPattern,
   getPaymentMethodBreakdown,
+  getBoroughBreakdown,
 } from '@/lib/api/transportationData';
 
 export const dynamic = 'force-dynamic';
@@ -57,6 +58,7 @@ export async function GET() {
     );
     const hourlyDemand = getHourlyDemandPattern(taxiTrips);
     const paymentMethods = getPaymentMethodBreakdown(taxiTrips);
+    const boroughBreakdown = getBoroughBreakdown(taxiTrips);
 
     const response = {
       fhvStats,
@@ -64,6 +66,7 @@ export async function GET() {
       subwayPerformanceStats,
       hourlyDemand,
       paymentMethods,
+      boroughBreakdown,
       lastUpdated: new Date().toISOString(),
     };
 

@@ -202,6 +202,14 @@ export interface SubwayPerformanceStats {
   };
 }
 
+export interface BoroughTransportationData {
+  borough: string;
+  taxiPickups: number;
+  taxiDropoffs: number;
+  avgFare: number;
+  totalRevenue: number;
+}
+
 /**
  * Fetch FHV active vehicles
  */
@@ -931,5 +939,91 @@ export function getPaymentMethodBreakdown(trips: TaxiTripRecord[]): Array<{
       percentage: (count / total) * 100,
     }))
     .sort((a, b) => b.count - a.count);
+}
+
+/**
+ * Get borough breakdown for transportation data
+ */
+export function getBoroughBreakdown(trips: TaxiTripRecord[]): BoroughTransportationData[] {
+  const boroughMap: Record<string, {
+    taxiPickups: number;
+    taxiDropoffs: number;
+    totalFare: number;
+    totalRevenue: number;
+  }> = {};
+
+  // Helper function to get borough from zone ID
+  const getZoneBorough = (zoneId: string): string => {
+    const zone = parseInt(zoneId, 10);
+    // Manhattan zones: 1-69, 87-90, 100-103, 107-114, 125-128, 140-143, 148, 151-153, 158-166, 186, 194, 202, 209, 211-234, 236-246, 249, 261-263
+    if ([...Array.from({length: 69}, (_, i) => i + 1), 87, 88, 89, 90, 100, 101, 102, 103, 107, 108, 109, 110, 111, 112, 113, 114, 125, 126, 127, 128, 140, 141, 142, 143, 148, 151, 152, 153, 158, 159, 160, 161, 162, 163, 164, 165, 166, 186, 194, 202, 209, 211, 212, 213, 214, 215, 216, 217, 218, 219, 220, 221, 222, 223, 224, 225, 226, 227, 228, 229, 230, 231, 232, 233, 234, 236, 237, 238, 239, 240, 241, 242, 243, 244, 245, 246, 249, 261, 262, 263].includes(zone)) {
+      return 'Manhattan';
+    }
+    // Bronx zones: 3, 18, 20, 31, 32, 46, 47, 51, 58, 59, 60, 69, 78, 81, 94, 119, 126, 136, 147, 159, 167, 168, 169, 174, 182, 183, 184, 185, 199, 200, 208, 212, 213, 220, 235, 250
+    if ([3, 18, 20, 31, 32, 46, 47, 51, 58, 59, 60, 69, 78, 81, 94, 119, 126, 136, 147, 159, 167, 168, 169, 174, 182, 183, 184, 185, 199, 200, 208, 212, 213, 220, 235, 250].includes(zone)) {
+      return 'Bronx';
+    }
+    // Brooklyn zones: 11-17, 21-25, 33-45, 49, 52, 54-57, 61-67, 71-77, 80, 85, 91, 97, 106, 108, 111, 112, 123, 133, 134, 135, 139, 145, 146, 150, 154, 155, 156, 157, 170, 177, 178, 181, 188, 189, 190, 195, 210, 217, 222, 225, 227, 228, 255, 256, 257
+    if ([11, 12, 13, 14, 15, 16, 17, 21, 22, 23, 24, 25, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 49, 52, 54, 55, 56, 57, 61, 62, 63, 64, 65, 66, 67, 71, 72, 73, 74, 75, 76, 77, 80, 85, 91, 97, 106, 108, 111, 112, 123, 133, 134, 135, 139, 145, 146, 150, 154, 155, 156, 157, 170, 177, 178, 181, 188, 189, 190, 195, 210, 217, 222, 225, 227, 228, 255, 256, 257].includes(zone)) {
+      return 'Brooklyn';
+    }
+    // Queens zones: 2, 7-10, 19, 27-30, 48, 53, 70, 82-84, 86, 92, 93, 95, 96, 98, 99, 115-118, 120-122, 124, 127, 129-132, 137, 138, 144, 149, 171-173, 175, 176, 179, 180, 191-193, 196-198, 201, 203-207, 215, 216, 218, 219, 221, 226, 252, 253, 254, 258, 259, 260
+    if ([2, 7, 8, 9, 10, 19, 27, 28, 29, 30, 48, 53, 70, 82, 83, 84, 86, 92, 93, 95, 96, 98, 99, 115, 116, 117, 118, 120, 121, 122, 124, 127, 129, 130, 131, 132, 137, 138, 144, 149, 171, 172, 173, 175, 176, 179, 180, 191, 192, 193, 196, 197, 198, 201, 203, 204, 205, 206, 207, 215, 216, 218, 219, 221, 226, 252, 253, 254, 258, 259, 260].includes(zone)) {
+      return 'Queens';
+    }
+    // Staten Island zones: 5, 6, 26, 50, 79, 104, 105, 110, 187, 214, 223, 224
+    if ([5, 6, 26, 50, 79, 104, 105, 110, 187, 214, 223, 224].includes(zone)) {
+      return 'Staten Island';
+    }
+    return 'Unknown';
+  };
+
+  trips.forEach(trip => {
+    const pickupBorough = getZoneBorough(trip.pulocationid || '0');
+    const dropoffBorough = getZoneBorough(trip.dolocationid || '0');
+    const fare = parseFloat(trip.total_amount || '0');
+    const distance = parseFloat(trip.trip_distance || '0');
+
+    if (fare > 0 && distance > 0) {
+      // Track pickups
+      if (pickupBorough !== 'Unknown') {
+        if (!boroughMap[pickupBorough]) {
+          boroughMap[pickupBorough] = {
+            taxiPickups: 0,
+            taxiDropoffs: 0,
+            totalFare: 0,
+            totalRevenue: 0,
+          };
+        }
+        boroughMap[pickupBorough].taxiPickups++;
+        boroughMap[pickupBorough].totalFare += parseFloat(trip.fare_amount || '0');
+        boroughMap[pickupBorough].totalRevenue += fare;
+      }
+
+      // Track dropoffs
+      if (dropoffBorough !== 'Unknown') {
+        if (!boroughMap[dropoffBorough]) {
+          boroughMap[dropoffBorough] = {
+            taxiPickups: 0,
+            taxiDropoffs: 0,
+            totalFare: 0,
+            totalRevenue: 0,
+          };
+        }
+        boroughMap[dropoffBorough].taxiDropoffs++;
+      }
+    }
+  });
+
+  // Convert to array and calculate averages
+  return Object.entries(boroughMap)
+    .map(([borough, data]) => ({
+      borough,
+      taxiPickups: data.taxiPickups,
+      taxiDropoffs: data.taxiDropoffs,
+      avgFare: data.taxiPickups > 0 ? data.totalFare / data.taxiPickups : 0,
+      totalRevenue: data.totalRevenue,
+    }))
+    .sort((a, b) => a.borough.localeCompare(b.borough));
 }
 

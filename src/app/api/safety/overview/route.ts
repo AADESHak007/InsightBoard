@@ -6,6 +6,7 @@ import {
   calculateCrimeStats,
   calculateCollisionStats,
   getYearlyCrimeTrends,
+  getBoroughBreakdown,
 } from '@/lib/api/publicSafetyData';
 
 export const dynamic = 'force-dynamic';
@@ -41,11 +42,13 @@ export async function GET() {
     const crimeStats = calculateCrimeStats(complaints);
     const collisionStats = calculateCollisionStats(collisions);
     const yearlyTrends = getYearlyCrimeTrends(complaints);
+    const boroughBreakdown = getBoroughBreakdown(complaints, collisions);
 
     const response = {
       crimeStats,
       collisionStats,
       yearlyTrends,
+      boroughBreakdown,
       lastUpdated: new Date().toISOString(),
     };
 

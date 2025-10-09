@@ -9,6 +9,7 @@ import {
   calculateAffordableHousingStats,
   getYearlyPermitTrends,
   getPermitViolationCorrelation,
+  getBoroughBreakdown,
 } from '@/lib/api/housingData';
 
 export const dynamic = 'force-dynamic';
@@ -47,6 +48,7 @@ export async function GET() {
     const affordableHousingStats = calculateAffordableHousingStats(housingNewYork);
     const yearlyTrends = getYearlyPermitTrends(permits);
     const correlation = getPermitViolationCorrelation(permits, violations);
+    const boroughBreakdown = getBoroughBreakdown(permits, violations);
 
     const response = {
       permitStats,
@@ -54,6 +56,7 @@ export async function GET() {
       affordableHousingStats,
       yearlyTrends,
       correlation,
+      boroughBreakdown,
       lastUpdated: new Date().toISOString(),
     };
 

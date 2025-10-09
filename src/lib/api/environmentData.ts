@@ -127,6 +127,16 @@ export interface RecyclingDiversionStats {
   yearlyTrend: Array<{ year: string; diversionRate: number; totalWaste: number; totalRecycled: number }>;
 }
 
+export interface BoroughEnvironmentData {
+  borough: string;
+  totalTrees: number;
+  aliveTrees: number;
+  goodHealthTrees: number;
+  totalWaste: number;
+  totalRecycled: number;
+  diversionRate: number;
+}
+
 /**
  * Fetch air quality data
  */
@@ -598,5 +608,92 @@ export function calculateRecyclingDiversionStats(records: DSNYTonnageRecord[]): 
     totalRecycled: currentYearData ? currentYearData.totalRecycled : 0,
     yearlyTrend,
   };
+}
+
+/**
+ * Get borough breakdown for environment data
+ */
+export function getBoroughBreakdown(
+  trees: StreetTree[],
+  tonnage: DSNYTonnageRecord[]
+): BoroughEnvironmentData[] {
+  const boroughMap: Record<string, {
+    totalTrees: number;
+    aliveTrees: number;
+    goodHealthTrees: number;
+    totalWaste: number;
+    totalRecycled: number;
+  }> = {};
+
+  // Normalize borough names
+  const normalizeBoroughName = (boro?: string): string => {
+    if (!boro) return 'Unknown';
+    const normalized = boro.trim().toUpperCase();
+    if (normalized === 'MANHATTAN' || normalized === '1') return 'Manhattan';
+    if (normalized === 'BRONX' || normalized === '2') return 'Bronx';
+    if (normalized === 'BROOKLYN' || normalized === '3') return 'Brooklyn';
+    if (normalized === 'QUEENS' || normalized === '4') return 'Queens';
+    if (normalized === 'STATEN ISLAND' || normalized === '5') return 'Staten Island';
+    return boro;
+  };
+
+  // Process trees
+  trees.forEach(tree => {
+    const borough = normalizeBoroughName(tree.boroname);
+    if (!boroughMap[borough]) {
+      boroughMap[borough] = {
+        totalTrees: 0,
+        aliveTrees: 0,
+        goodHealthTrees: 0,
+        totalWaste: 0,
+        totalRecycled: 0,
+      };
+    }
+
+    boroughMap[borough].totalTrees++;
+
+    if (tree.status?.toUpperCase() === 'ALIVE') {
+      boroughMap[borough].aliveTrees++;
+    }
+
+    if (tree.health?.toUpperCase() === 'GOOD') {
+      boroughMap[borough].goodHealthTrees++;
+    }
+  });
+
+  // Process tonnage data
+  tonnage.forEach(record => {
+    const borough = normalizeBoroughName(record.borough);
+    if (!boroughMap[borough]) {
+      boroughMap[borough] = {
+        totalTrees: 0,
+        aliveTrees: 0,
+        goodHealthTrees: 0,
+        totalWaste: 0,
+        totalRecycled: 0,
+      };
+    }
+
+    const refuse = parseFloat(record.refusetonscollected || '0');
+    const paper = parseFloat(record.papertonscollected || '0');
+    const mgp = parseFloat(record.mgptonscollected || '0');
+
+    boroughMap[borough].totalWaste += refuse;
+    boroughMap[borough].totalRecycled += paper + mgp;
+  });
+
+  // Convert to array and calculate diversion rates
+  return Object.entries(boroughMap)
+    .filter(([borough]) => borough !== 'Unknown')
+    .map(([borough, data]) => ({
+      borough,
+      totalTrees: data.totalTrees,
+      aliveTrees: data.aliveTrees,
+      goodHealthTrees: data.goodHealthTrees,
+      totalWaste: Math.round(data.totalWaste),
+      totalRecycled: Math.round(data.totalRecycled),
+      diversionRate: data.totalWaste > 0 ? (data.totalRecycled / data.totalWaste) * 100 : 0,
+    }))
+    .sort((a, b) => a.borough.localeCompare(b.borough));
 }
 
